@@ -1,0 +1,62 @@
+# Code::Blocks / C++ general gitignore
+# Ignore build artefacts, temporary files and OS/editor files
+
+# Build directories
+Debug/
+Release/
+bin/
+build/
+obj/
+
+# Compiled object files, libraries, executables
+*.o
+*.obj
+*.lo
+*.la
+*.al
+*.dll
+*.exe
+*.out
+*.app
+*.lib
+*.a
+*.so
+
+# Code::Blocks generated files
+*.layout
+*.depend
+
+# IDEs and editors
+.vscode/
+.idea/
+*.suo
+*.user
+*.userprefs
+*.cbpuser
+
+# Backup and temp files
+*~
+*.swp
+*.tmp
+*.bak
+*.orig
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+
+# Debug and profiler files
+*.log
+*.gcda
+*.gcno
+*.dSYM/
+
+# CTags, tags
+tags
+
+# Other
+core
+.cache/
+
