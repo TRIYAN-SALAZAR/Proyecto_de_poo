@@ -93,6 +93,7 @@ std::ostream &operator<<(std::ostream &out, const Product &p)
 {
     auto truncate = [](const std::string &s, std::size_t w) -> std::string {
         if (s.size() <= w) return s;
+        if (w <= 3) return s.substr(0, w);
         return s.substr(0, w - 3) + "...";
     };
 
