@@ -92,24 +92,8 @@ void Gestor::showAll() const
 
     for (const Product *p : list)
     {
-        if (!p)
-            continue;
-        std::string tipo = "Producto";
-        if (dynamic_cast<const Electronic *>(p))
-            tipo = "Electronico";
-        else if (dynamic_cast<const Book *>(p))
-            tipo = "Libro";
-
-        std::ostringstream oss;
-        oss << std::fixed << std::setprecision(2) << p->getPrice();
-
-        std::cout << std::left << std::setw(wId) << p->getId()
-                  << std::setw(wTipo) << tipo
-                  << std::setw(wNombre) << truncate(p->getName(), wNombre - 1)
-                  << std::setw(wPrecio) << oss.str()
-                  << std::setw(wStock) << p->getStock()
-                  << std::setw(wDesc) << truncate(p->getDescription(), wDesc - 1)
-                  << "\n";
+        if (!p) continue;
+        std::cout << *p << "\n";
     }
 
     std::cout << std::endl;
@@ -147,16 +131,7 @@ void Gestor::showByType(const std::string &tipo) const
             if (!p) continue;
             const Electronic* e = dynamic_cast<const Electronic*>(p);
             if (!e) continue;
-            std::ostringstream oss; oss << std::fixed << std::setprecision(2) << e->getPrice();
-            std::cout << std::left << std::setw(wId) << e->getId()
-                      << std::setw(wMarca) << truncate(e->getBrand(), wMarca-1)
-                      << std::setw(wModelo) << truncate(e->getModel(), wModelo-1)
-                      << std::setw(wNombre) << truncate(e->getName(), wNombre-1)
-                      << std::setw(wPrecio) << oss.str()
-                      << std::setw(wStock) << e->getStock()
-                      << std::setw(wGarantia) << e->getWarrantyMonths()
-                      << std::setw(wSpecs) << truncate(e->getSpecifications(), wSpecs-1)
-                      << "\n";
+            std::cout << *e << "\n";
         }
         std::cout << std::endl;
         return;
@@ -181,16 +156,7 @@ void Gestor::showByType(const std::string &tipo) const
             if (!p) continue;
             const Book* b = dynamic_cast<const Book*>(p);
             if (!b) continue;
-            std::ostringstream oss; oss << std::fixed << std::setprecision(2) << b->getPrice();
-            std::cout << std::left << std::setw(wId) << b->getId()
-                      << std::setw(wAutor) << truncate(b->getAuthor(), wAutor-1)
-                      << std::setw(wTitulo) << truncate(b->getName(), wTitulo-1)
-                      << std::setw(wEditorial) << truncate(b->getPublisher(), wEditorial-1)
-                      << std::setw(wisbn) << truncate(b->getIsbn(), wisbn-1)
-                      << std::setw(wPag) << b->getPages()
-                      << std::setw(wPrecio) << oss.str()
-                      << std::setw(wStock) << b->getStock()
-                      << "\n";
+            std::cout << *b << "\n";
         }
         std::cout << std::endl;
         return;
