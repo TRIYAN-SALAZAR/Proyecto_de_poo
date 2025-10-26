@@ -34,6 +34,7 @@ class Product
 
     virtual void showInfo() const;
     virtual float calculateFinalPrice() const;
+    virtual void printRow(std::ostream& out) const;
     virtual ~Product();
 
     bool operator==(const Product& p) const;

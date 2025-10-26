@@ -28,6 +28,7 @@ class Book : public Product
 
         void showInfo() const override;
         float calculateFinalPrice() const override;
+    void printRow(std::ostream& out) const override;
 
     private:
         std::string author;

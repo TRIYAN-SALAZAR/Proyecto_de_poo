@@ -1,4 +1,5 @@
 #include "Book.h"
+#include <iomanip>
 #include <iostream>
 
 Book::Book()
@@ -45,4 +46,32 @@ float Book::calculateFinalPrice() const
 {
     const float CULTURAL_TAX = 0.05f;
     return getPrice() * (1.0f + CULTURAL_TAX);
+}
+
+void Book::printRow(std::ostream &out) const
+{
+    const int wId = 6;
+    const int wAutor = 18;
+    const int wTitulo = 20;
+    const int wEditorial = 16;
+    const int wIsbn = 16;
+    const int wPag = 8;
+    const int wPrecio = 10;
+    const int wStock = 8;
+
+    auto truncate = [](const std::string &s, std::size_t w) -> std::string {
+        if (s.size() <= w) return s;
+        if (w <= 3) return s.substr(0, w);
+        return s.substr(0, w - 3) + "...";
+    };
+
+    std::ostringstream oss; oss << std::fixed << std::setprecision(2) << getPrice();
+    out << std::left << std::setw(wId) << getId()
+        << std::setw(wAutor) << truncate(author, wAutor - 1)
+        << std::setw(wTitulo) << truncate(getName(), wTitulo - 1)
+        << std::setw(wEditorial) << truncate(publisher, wEditorial - 1)
+        << std::setw(wIsbn) << truncate(isbn, wIsbn - 1)
+        << std::setw(wPag) << pages
+        << std::setw(wPrecio) << oss.str()
+        << std::setw(wStock) << getStock();
 }

@@ -91,6 +91,12 @@ Product Product::operator+(const Product &p) const
 
 std::ostream &operator<<(std::ostream &out, const Product &p)
 {
+    p.printRow(out);
+    return out;
+}
+
+void Product::printRow(std::ostream &out) const
+{
     auto truncate = [](const std::string &s, std::size_t w) -> std::string {
         if (s.size() <= w) return s;
         if (w <= 3) return s.substr(0, w);
@@ -104,56 +110,13 @@ std::ostream &operator<<(std::ostream &out, const Product &p)
     const int wStock = 8;
     const int wDesc = 36;
 
-    const int wMarca = 14;
-    const int wModelo = 12;
-    const int wNombreE = 20;
-    const int wGarantia = 10;
-    const int wSpecs = 28;
-
-    const int wAutor = 18;
-    const int wTitulo = 20;
-    const int wEditorial = 16;
-    const int wIsbn = 16;
-    const int wPag = 8;
-
-    const Electronic* e = dynamic_cast<const Electronic*>(&p);
-    if (e)
-    {
-        std::ostringstream oss; oss << std::fixed << std::setprecision(2) << e->getPrice();
-        out << std::left << std::setw(wId) << e->getId()
-            << std::setw(wMarca) << truncate(e->getBrand(), wMarca - 1)
-            << std::setw(wModelo) << truncate(e->getModel(), wModelo - 1)
-            << std::setw(wNombreE) << truncate(e->getName(), wNombreE - 1)
-            << std::setw(wPrecio) << oss.str()
-            << std::setw(wStock) << e->getStock()
-            << std::setw(wGarantia) << e->getWarrantyMonths()
-            << std::setw(wSpecs) << truncate(e->getSpecifications(), wSpecs - 1);
-        return out;
-    }
-
-    const Book* b = dynamic_cast<const Book*>(&p);
-    if (b)
-    {
-        std::ostringstream oss; oss << std::fixed << std::setprecision(2) << b->getPrice();
-        out << std::left << std::setw(wId) << b->getId()
-            << std::setw(wAutor) << truncate(b->getAuthor(), wAutor - 1)
-            << std::setw(wTitulo) << truncate(b->getName(), wTitulo - 1)
-            << std::setw(wEditorial) << truncate(b->getPublisher(), wEditorial - 1)
-            << std::setw(wIsbn) << truncate(b->getIsbn(), wIsbn - 1)
-            << std::setw(wPag) << b->getPages()
-            << std::setw(wPrecio) << oss.str()
-            << std::setw(wStock) << b->getStock();
-        return out;
-    }
-
-    std::ostringstream oss; oss << std::fixed << std::setprecision(2) << p.getPrice();
-    out << std::left << std::setw(wId) << p.getId()
+    std::ostringstream oss; oss << std::fixed << std::setprecision(2) << getPrice();
+    out << std::left << std::setw(wId) << getId()
         << std::setw(wTipo) << "Producto"
-        << std::setw(wNombre) << truncate(p.getName(), wNombre - 1)
+        << std::setw(wNombre) << truncate(getName(), wNombre - 1)
         << std::setw(wPrecio) << oss.str()
-        << std::setw(wStock) << p.getStock()
-        << std::setw(wDesc) << truncate(p.getDescription(), wDesc - 1);
-    return out;
+        << std::setw(wStock) << getStock()
+        << std::setw(wDesc) << truncate(getDescription(), wDesc - 1);
 }
 
 std::istream &operator>>(std::istream &in, Product &p)

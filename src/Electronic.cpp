@@ -1,4 +1,5 @@
 #include "Electronic.h"
+#include <iomanip>
 #include <iostream>
 
 Electronic::Electronic()
@@ -41,4 +42,32 @@ float Electronic::calculateFinalPrice() const
 {
     const float ELECTRONIC_TAX = 0.16f;
     return getPrice() * (1.0f + ELECTRONIC_TAX);
+}
+
+void Electronic::printRow(std::ostream &out) const
+{
+    const int wId = 6;
+    const int wMarca = 14;
+    const int wModelo = 12;
+    const int wNombre = 20;
+    const int wPrecio = 10;
+    const int wStock = 8;
+    const int wGarantia = 10;
+    const int wSpecs = 28;
+
+    auto truncate = [](const std::string &s, std::size_t w) -> std::string {
+        if (s.size() <= w) return s;
+        if (w <= 3) return s.substr(0, w);
+        return s.substr(0, w - 3) + "...";
+    };
+
+    std::ostringstream oss; oss << std::fixed << std::setprecision(2) << getPrice();
+    out << std::left << std::setw(wId) << getId()
+        << std::setw(wMarca) << truncate(brand, wMarca - 1)
+        << std::setw(wModelo) << truncate(model, wModelo - 1)
+        << std::setw(wNombre) << truncate(getName(), wNombre - 1)
+        << std::setw(wPrecio) << oss.str()
+        << std::setw(wStock) << getStock()
+        << std::setw(wGarantia) << warrantyMonths
+        << std::setw(wSpecs) << truncate(specifications, wSpecs - 1);
 }

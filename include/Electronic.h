@@ -31,6 +31,7 @@ class Electronic : public Product
 
         void showInfo() const override;
         float calculateFinalPrice() const override;
+    void printRow(std::ostream& out) const override;
 };
 
 #endif // ELECTRONIC_H
