@@ -1,6 +1,4 @@
 #include "Product.h"
-#include "Book.h"
-#include "Electronic.h"
 #include <iostream>
 #include <limits>
 #include <iomanip>
