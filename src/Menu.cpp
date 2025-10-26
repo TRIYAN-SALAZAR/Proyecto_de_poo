@@ -147,8 +147,6 @@ void Menu::processOption(int option)
             gestor->showByType("Electronic");
         else if (t == 2)
             gestor->showByType("Book");
-        else
-            gestor->showByType("Product");
     }
 
     std::cout << std::endl;

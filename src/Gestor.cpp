@@ -73,12 +73,12 @@ void Gestor::showAll() const
     const int wStock = 8;
     const int wDesc = 36;
 
-    auto truncate = [](const std::string &s, std::size_t w) -> std::string
-    {
+    auto truncate = [](const std::string &s, std::size_t w) -> std::string {
         if (s.size() <= w)
             return s;
         return s.substr(0, w - 3) + "...";
     };
+
 
     std::cout << std::endl;
     std::cout << std::left << std::setw(wId) << "ID"
@@ -93,7 +93,17 @@ void Gestor::showAll() const
     for (const Product *p : list)
     {
         if (!p) continue;
-        std::cout << *p << "\n";
+        std::string tipoStr = "Producto";
+        if (dynamic_cast<const Electronic *>(p)) tipoStr = "Electronico";
+        else if (dynamic_cast<const Book *>(p)) tipoStr = "Libro";
+        std::ostringstream oss; oss << std::fixed << std::setprecision(2) << p->getPrice();
+        std::cout << std::left << std::setw(wId) << p->getId()
+                  << std::setw(wTipo) << tipoStr
+                  << std::setw(wNombre) << truncate(p->getName(), wNombre - 1)
+                  << std::setw(wPrecio) << oss.str()
+                  << std::setw(wStock) << p->getStock()
+                  << std::setw(wDesc) << truncate(p->getDescription(), wDesc - 1)
+                  << "\n";
     }
 
     std::cout << std::endl;
@@ -160,40 +170,6 @@ void Gestor::showByType(const std::string &tipo) const
         }
         std::cout << std::endl;
         return;
-    }
-
-    // Generic/Product or all
-    const int wId = 6;
-    const int wTipo = 14;
-    const int wNombre = 22;
-    const int wPrecio = 10;
-    const int wStock = 8;
-    const int wDesc = 36;
-
-    std::cout << std::endl;
-    std::cout << std::left << std::setw(wId) << "ID"
-              << std::setw(wTipo) << "Tipo"
-              << std::setw(wNombre) << "Nombre"
-              << std::setw(wPrecio) << "Precio"
-              << std::setw(wStock) << "Stock"
-              << std::setw(wDesc) << "Descripcion" << "\n";
-
-    std::cout << std::string(wId + wTipo + wNombre + wPrecio + wStock + wDesc, '-') << "\n";
-
-    for (const Product *p : list)
-    {
-        if (!p) continue;
-        std::string tipoStr = "Producto";
-        if (dynamic_cast<const Electronic *>(p)) tipoStr = "Electronico";
-        else if (dynamic_cast<const Book *>(p)) tipoStr = "Libro";
-        std::ostringstream oss; oss << std::fixed << std::setprecision(2) << p->getPrice();
-        std::cout << std::left << std::setw(wId) << p->getId()
-                  << std::setw(wTipo) << tipoStr
-                  << std::setw(wNombre) << truncate(p->getName(), wNombre - 1)
-                  << std::setw(wPrecio) << oss.str()
-                  << std::setw(wStock) << p->getStock()
-                  << std::setw(wDesc) << truncate(p->getDescription(), wDesc - 1)
-                  << "\n";
     }
 
     std::cout << std::endl;
