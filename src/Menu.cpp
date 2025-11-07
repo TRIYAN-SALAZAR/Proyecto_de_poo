@@ -19,7 +19,8 @@ void Menu::showMainMenu() const
     std::cout << "4. Mostrar todos los productos\n";
     std::cout << "5. Mostrar productos por tipo\n";
     std::cout << "6. Operadores\n";
-    std::cout << "7. Salir\n";
+    std::cout << "7. Modificar producto\n";
+    std::cout << "8. Salir\n";
     std::cout << "Elige una opcion: ";
     std::cout << std::endl;
 }
@@ -152,6 +153,10 @@ void Menu::processOption(int option)
     {
         operatorsMenu();
     }
+    else if (option == 7)
+    {
+        modifyProduct();
+    }
 
     std::cout << std::endl;
 }
@@ -165,10 +170,67 @@ void Menu::run()
         int opt = 0;
         if (!(std::cin >> opt))
             break;
-        if (opt == 7)
+        if (opt == 8)
             break;
         processOption(opt);
     }
+}
+
+static std::string readLineAllowEmpty(const std::string &prompt)
+{
+    std::cout << prompt;
+    std::string line;
+    std::getline(std::cin, line);
+    return line;
+}
+
+void Menu::modifyProduct()
+{
+    if (!gestor) return;
+    std::cout << "Ingrese ID del producto a modificar: ";
+    int id;
+    if (!(std::cin >> id)) { clearInput(); return; }
+    clearInput();
+    Product* p = gestor->findProduct(id);
+    if (!p) { std::cout << "Producto no encontrado.\n"; return; }
+
+    p->showInfo();
+
+    std::string s;
+    s = readLineAllowEmpty("Nuevo nombre (enter = mantener): ");
+    if (!s.empty()) p->setName(s);
+
+    s = readLineAllowEmpty("Nuevo precio (enter = mantener): ");
+    if (!s.empty()) {
+        try { float v = std::stof(s); p->setPrice(v); } catch(...) {}
+    }
+
+    s = readLineAllowEmpty("Nueva descripcion (enter = mantener): ");
+    if (!s.empty()) p->setDescription(s);
+
+    s = readLineAllowEmpty("Nuevo stock (enter = mantener): ");
+    if (!s.empty()) { try { int v = std::stoi(s); p->setStock(v); } catch(...) {} }
+
+    Electronic* e = dynamic_cast<Electronic*>(p);
+    if (e)
+    {
+        s = readLineAllowEmpty("Nueva marca (enter = mantener): "); if (!s.empty()) e->setBrand(s);
+        s = readLineAllowEmpty("Nuevo modelo (enter = mantener): "); if (!s.empty()) e->setModel(s);
+        s = readLineAllowEmpty("Nueva garantia meses (enter = mantener): "); if (!s.empty()){ try{ int v = std::stoi(s); e->setWarrantyMonths(v);}catch(...){} }
+        s = readLineAllowEmpty("Nuevas especificaciones (enter = mantener): "); if (!s.empty()) e->setSpecifications(s);
+    }
+
+    Book* b = dynamic_cast<Book*>(p);
+    if (b)
+    {
+        s = readLineAllowEmpty("Nuevo autor (enter = mantener): "); if (!s.empty()) b->setAuthor(s);
+        s = readLineAllowEmpty("Nueva editorial (enter = mantener): "); if (!s.empty()) b->setPublisher(s);
+        s = readLineAllowEmpty("Nuevo ISBN (enter = mantener): "); if (!s.empty()) b->setIsbn(s);
+        s = readLineAllowEmpty("Nuevas paginas (enter = mantener): "); if (!s.empty()){ try{ int v = std::stoi(s); b->setPages(v);}catch(...){} }
+        s = readLineAllowEmpty("Nuevo genero (enter = mantener): "); if (!s.empty()) b->setGenre(s);
+    }
+
+    std::cout << "Producto modificado.\n";
 }
 
 void Menu::showOperatorsMenu() const
