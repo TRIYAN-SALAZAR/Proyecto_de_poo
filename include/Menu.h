@@ -14,8 +14,11 @@ class Menu
 
         void showMainMenu() const;
         void showProductTypeMenu() const;
+    void showOperatorsMenu() const;
         void processOption(int option);
         void run();
+
+    void operatorsMenu();
 };
 
 #endif // MENU_H

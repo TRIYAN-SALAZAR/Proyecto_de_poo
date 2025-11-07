@@ -18,7 +18,8 @@ void Menu::showMainMenu() const
     std::cout << "3. Busqueda de producto\n";
     std::cout << "4. Mostrar todos los productos\n";
     std::cout << "5. Mostrar productos por tipo\n";
-    std::cout << "6. Salir\n";
+    std::cout << "6. Operadores\n";
+    std::cout << "7. Salir\n";
     std::cout << "Elige una opcion: ";
     std::cout << std::endl;
 }
@@ -29,7 +30,6 @@ void Menu::showProductTypeMenu() const
     std::cout << "-- Tipos de producto --\n";
     std::cout << "1. Electronico\n";
     std::cout << "2. Libro\n";
-    std::cout << "3. Producto generico\n";
     std::cout << "Elige tipo: ";
 }
 
@@ -148,6 +148,10 @@ void Menu::processOption(int option)
         else if (t == 2)
             gestor->showByType("Book");
     }
+    else if (option == 6)
+    {
+        operatorsMenu();
+    }
 
     std::cout << std::endl;
 }
@@ -161,8 +165,77 @@ void Menu::run()
         int opt = 0;
         if (!(std::cin >> opt))
             break;
-        if (opt == 6)
+        if (opt == 7)
             break;
         processOption(opt);
+    }
+}
+
+void Menu::showOperatorsMenu() const
+{
+    std::cout << std::endl;
+    std::cout << "-- Menu Operadores --\n";
+    std::cout << "1. Comparar si los ID son iguales (==)\n";
+    std::cout << "2. Comparar si los ID no son iguales (!=)\n";
+    std::cout << "3. Determinar cual el menor precio (<)\n";
+    std::cout << "4. Determinar cual tiene el mayor precio (>)\n";
+    std::cout << "5. Sumar productos (+)\n";
+    std::cout << "6. Volver\n";
+    std::cout << "Elige una opcion: ";
+}
+
+void Menu::operatorsMenu()
+{
+    if (!gestor) return;
+    while (true)
+    {
+        showOperatorsMenu();
+        int op = 0;
+        if (!(std::cin >> op)) return;
+        clearInput();
+        if (op == 6) return;
+
+        int id1 = 0, id2 = 0;
+        std::cout << "Ingrese ID del primer producto: ";
+        if (!(std::cin >> id1)) { clearInput(); continue; }
+        clearInput();
+        std::cout << "Ingrese ID del segundo producto: ";
+        if (!(std::cin >> id2)) { clearInput(); continue; }
+        clearInput();
+
+        Product* p1 = gestor->findProduct(id1);
+        Product* p2 = gestor->findProduct(id2);
+        if (!p1 || !p2)
+        {
+            std::cout << "Uno o ambos productos no encontrados.\n";
+            continue;
+        }
+
+        if (op == 1)
+        {
+            bool res = (*p1) == (*p2);
+            std::cout << (res ? "Productos iguales\n" : "Productos distintos\n");
+        }
+        else if (op == 2)
+        {
+            bool res = (*p1) != (*p2);
+            std::cout << (res ? "Productos distintos\n" : "Productos iguales\n");
+        }
+        else if (op == 3)
+        {
+            bool res = (*p1) < (*p2);
+            std::cout << (res ? "El precio del primer producto es menor\n" : "El precio del segundo producto es menor\n");
+        }
+        else if (op == 4)
+        {
+            bool res = (*p1) > (*p2);
+            std::cout << (res ? "El precio del primer producto es mayor\n" : "El precio del segundo producto es mayor\n");
+        }
+        else if (op == 5)
+        {
+            Product combined = (*p1) + (*p2);
+            std::cout << "Resultado de la suma:\n";
+            std::cout << combined << std::endl;
+        }
     }
 }

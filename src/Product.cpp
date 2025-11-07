@@ -51,19 +51,19 @@ bool Product::operator==(const Product &p) const
 
 bool Product::operator!=(const Product &p) const
 {
-    return !(*this == p);
+    return !(this->id == p.id);
 }
 
 bool Product::operator<(const Product &p) const
 {
-    if (this->price != p.price)
-        return this->price < p.price;
-    return this->id < p.id;
+    if (this->price < p.price) return true;
+    return false;
 }
 
 bool Product::operator>(const Product &p) const
 {
-    return p < *this;
+    if (this->price > p.price) return true;
+    return false;
 }
 
 Product &Product::operator=(const Product &p)
@@ -82,8 +82,6 @@ Product Product::operator+(const Product &p) const
 {
     Product result = *this;
     result.price = this->price + p.price;
-    result.stock = this->stock + p.stock;
-    result.description = this->description + " | " + p.description;
     return result;
 }
 
