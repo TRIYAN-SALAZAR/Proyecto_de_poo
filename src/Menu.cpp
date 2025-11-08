@@ -32,6 +32,7 @@ void Menu::showProductTypeMenu() const
     std::cout << "-- Tipos de producto --\n";
     std::cout << "1. Electronico\n";
     std::cout << "2. Libro\n";
+    std::cout << "3. Producto\n";
     std::cout << "Elige tipo: ";
 }
 
@@ -71,7 +72,7 @@ void Menu::processOption(int option)
             Electronic *e = new Electronic(0, name, price, description, stock);
             std::cin >> *e;
             gestor->addProduct(e);
-            std::cout << "Electronico anadido.\n";
+            std::cout << "Electronico agregado.\n";
         }
         else if (t == 2)
         {
@@ -79,13 +80,15 @@ void Menu::processOption(int option)
             Book *b = new Book(0, name, price, description, stock);
             std::cin >> *b;
             gestor->addProduct(b);
-            std::cout << "Libro anadido.\n";
+            std::cout << "Libro agregado.\n";
         }
         else if(t == 3)
         {            
             Product *p = new Product(0, stock, price, name, description);
             gestor->addProduct(p);
-            std::cout << "Producto generico anadido.\n";
+            std::cout << "Producto generico agregado.\n";
+        } else {
+            std::cout << "Opcion no valida.\n";
         }
     }
     else if (option == 2)
