@@ -1,7 +1,8 @@
-#include "Product.h"
 #include <iostream>
 #include <limits>
 #include <iomanip>
+#include "Product.h"
+#include "UTILITIES.h"
 
 Product::Product()
     : id(0), stock(0), price(0.0f), name(""), description("")
@@ -117,31 +118,19 @@ void Product::printRow(std::ostream &out) const
 
 std::istream &operator>>(std::istream &in, Product &p)
 {
-    int id;
-    if (!(in >> id))
-        return in;
-    p.id = id;
-    in.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    std::cout << "Ingrese el nombre: ";
+    std::getline(std::cin, p.name);
+    clearInput();
 
-    std::string name;
-    std::getline(in, name);
-    p.name = name;
+    std::cout << "Ingrese la descripcion: ";
+    std::getline(std::cin, p.description);
+    clearInput();
 
-    float price;
-    if (!(in >> price))
-        return in;
-    p.price = price;
-    in.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-
-    std::string description;
-    std::getline(in, description);
-    p.description = description;
-
-    int stock;
-    if (in >> stock)
-    {
-        p.stock = stock;
-    }
+    std::cout << "Ingrese el stock: ";
+    std::cin >> p.stock;
+    
+    std::cout << "Ingrese el precio: ";
+    std::cin >> p.price;
 
     return in;
 }
