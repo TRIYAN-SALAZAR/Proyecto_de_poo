@@ -192,6 +192,7 @@ void Menu::run()
 
     // Login loop
     while (true) {
+        clearScreen();
         std::string uname, pwd;
         std::cout << "Usuario (o 'exit' para salir): ";
         std::getline(std::cin, uname);
@@ -201,16 +202,19 @@ void Menu::run()
         User* u = userManager->authenticate(uname, pwd);
         if (!u) {
             std::cout << "Credenciales invalidas. Intente otra vez.\n";
+            waitForEnter();
             continue;
         }
         currentUser = u;
         std::cout << "Bienvenido, " << currentUser->getName() << "\n";
+        waitForEnter();
         break;
     }
 
     bool exit = false;
     while (!exit)
     {
+        clearScreen();
         showMainMenu();
         int opt = 0;
         if (!(std::cin >> opt))
@@ -220,6 +224,7 @@ void Menu::run()
             // logout
             currentUser = nullptr;
             std::cout << "Cerrando sesion.\n";
+            waitForEnter();
             break;
         }
         // User management options
@@ -260,6 +265,9 @@ void Menu::run()
         }
 
         processOption(opt);
+        // after action, allow user to see the output before clearing
+        std::cout << std::endl;
+        waitForEnter();
     }
 }
 
