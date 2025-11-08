@@ -1,8 +1,9 @@
-#include "Menu.h"
 #include <iostream>
 #include <limits>
+#include "Menu.h"
 #include "Electronic.h"
 #include "Book.h"
+#include "UTILITIES.h"
 
 Menu::Menu(Gestor *gestor)
     : gestor(gestor)
@@ -34,11 +35,6 @@ void Menu::showProductTypeMenu() const
     std::cout << "Elige tipo: ";
 }
 
-static void clearInput()
-{
-    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-}
-
 void Menu::processOption(int option)
 {
     if (!gestor)
@@ -56,15 +52,19 @@ void Menu::processOption(int option)
         std::cout << std::endl;
         std::cout << "Nombre: ";
         std::getline(std::cin, name);
+
         std::cout << "Precio: ";
         std::cin >> price;
         clearInput();
+        
         std::cout << "Descripcion: ";
         std::getline(std::cin, description);
+        
         std::cout << "Stock: ";
         std::cin >> stock;
         clearInput();
         std::cout << std::endl;
+        
         if (t == 1)
         {
             std::string brand, model, specs;
