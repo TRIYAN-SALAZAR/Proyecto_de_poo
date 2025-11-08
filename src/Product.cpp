@@ -116,23 +116,3 @@ void Product::printRow(std::ostream &out) const
         << std::setw(wDesc) << truncate(getDescription(), wDesc - 1);
 }
 
-std::istream &operator>>(std::istream &input, Product &p)
-{
-    std::cout << std::endl;
-    std::cout << "Ingrese el nombre: ";
-    std::getline(input, p.name);
-    clearInput();
-
-    std::cout << "Ingrese la descripcion: ";
-    std::getline(input, p.description);
-    clearInput();
-
-    std::cout << "Ingrese el stock: ";
-    input >> p.stock;
-    
-    std::cout << "Ingrese el precio: ";
-    input >> p.price;
-    std::cout << std::endl;
-
-    return input;
-}
