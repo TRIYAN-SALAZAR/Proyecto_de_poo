@@ -3,16 +3,20 @@
 
 #include <string>
 #include <Gestor.h>
+#include "UserManager.h"
+#include "User.h"
 
 class Menu
 {
     private:
         Gestor* gestor;
+        UserManager* userManager;
+        User* currentUser;
     
     public:
-        Menu(Gestor* gestor);
+    Menu(Gestor* gestor, UserManager* userManager);
 
-        void showMainMenu() const;
+    void showMainMenu();
         void showProductTypeMenu() const;
         void showOperatorsMenu() const;
         void processOption(int option);
