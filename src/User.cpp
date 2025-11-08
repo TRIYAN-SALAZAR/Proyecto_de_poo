@@ -91,3 +91,20 @@ int User::deleteUser(const User &actor)
     std::cout << "Operacion cancelada." << std::endl;
     return 0;
 }
+
+// Accessors
+const string& User::getName() const { return name; }
+int User::getCode() const { return code; }
+bool User::isAdminRole() const { return isAdmin; }
+bool User::isSuperAdminRole() const { return isSuperAdmin; }
+bool User::isSellerRole() const { return isSeller; }
+bool User::isWarehouseWorkerRole() const { return isWarehouseWorker; }
+
+bool User::checkPassword(const string &pw) const { return password == pw; }
+
+void User::setAdmin(bool v) { isAdmin = v; }
+void User::setSuperAdmin(bool v) { isSuperAdmin = v; }
+void User::setSeller(bool v) { isSeller = v; }
+void User::setWarehouseWorker(bool v) { isWarehouseWorker = v; }
+void User::setPassword(const string &pw) { password = pw; }
+void User::setName(const string &n) { name = n; }
