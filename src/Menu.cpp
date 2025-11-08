@@ -68,18 +68,8 @@ void Menu::processOption(int option)
         
         if (t == 1)
         {
-            std::string brand, model, specs;
-            int warranty = 0;
-            std::cout << "Marca: ";
-            std::getline(std::cin, brand);
-            std::cout << "Modelo: ";
-            std::getline(std::cin, model);
-            std::cout << "Garantia meses: ";
-            std::cin >> warranty;
-            clearInput();
-            std::cout << "Especificaciones: ";
-            std::getline(std::cin, specs);
-            Electronic *e = new Electronic(0, name, price, description, stock, brand, model, warranty, specs);
+            Electronic *e = new Electronic(0, name, price, description, stock);
+            std::cin >> *e;
             gestor->addProduct(e);
             std::cout << "Electronico anadido.\n";
         }

@@ -1,17 +1,17 @@
-#include "Electronic.h"
 #include <iomanip>
 #include <iostream>
+#include <string>
+#include "Electronic.h"
+#include "UTILITIES.h"
 
-Electronic::Electronic()
-    : Product(), brand(""), model(""), warrantyMonths(0), specifications("")
-{
-}
+Electronic::Electronic() : Product(), brand(""), model(""), warrantyMonths(0), specifications(""){}
+
+Electronic::Electronic(int id, const std::string& name, float price, const std::string& description, int stock)
+          : Product(id, stock, price, name, description), brand(""), model(""), warrantyMonths(0), specifications("") {}
 
 Electronic::Electronic(int id, const std::string &name, float price, const std::string &description, int stock,
                        const std::string &brand, const std::string &model, int warrantyMonths, const std::string &specifications)
-    : Product(id, stock, price, name, description), brand(brand), model(model), warrantyMonths(warrantyMonths), specifications(specifications)
-{
-}
+    : Product(id, stock, price, name, description), brand(brand), model(model), warrantyMonths(warrantyMonths), specifications(specifications){}
 
 std::string Electronic::getBrand() const { return brand; }
 void Electronic::setBrand(const std::string &brand) { this->brand = brand; }
@@ -70,4 +70,29 @@ void Electronic::printRow(std::ostream &out) const
         << std::setw(wStock) << getStock()
         << std::setw(wGarantia) << warrantyMonths
         << std::setw(wSpecs) << truncate(specifications, wSpecs - 1);
+}
+
+std::istream& operator>>(std::istream& input, Electronic& electronic) {
+    std::string brand, model, specs;
+    int warranty = 0;
+
+    std::cout << "Marca: ";
+    std::getline(input, brand);
+    
+    std::cout << "Modelo: ";
+    std::getline(input, model);
+    
+    std::cout << "Garantia meses: ";
+    input >> warranty;
+    clearInput();
+    
+    std::cout << "Especificaciones: ";
+    std::getline(input, specs);
+
+    electronic.setBrand(brand);
+    electronic.setModel(model);
+    electronic.setWarrantyMonths(warranty);
+    electronic.setSpecifications(specs);
+
+    return input;    
 }
