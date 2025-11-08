@@ -87,24 +87,9 @@ void Menu::processOption(int option)
             std::cout << "Libro anadido.\n";
         }
         else if(t == 3)
-        {
-            std::cout << std::endl;
-            std::cout << "Nombre: ";
-            std::getline(std::cin, name);
-
-            std::cout << "Precio: ";
-            std::cin >> price;
-            clearInput();
-            
-            std::cout << "Descripcion: ";
-            std::getline(std::cin, description);
-            
-            std::cout << "Stock: ";
-            std::cin >> stock;
-            clearInput();
-            std::cout << std::endl;
-            
-            Product *p = new Product(0, stock, price, name, description);
+        {            
+            Product *p = new Product();
+            std::cin >> *p;
             gestor->addProduct(p);
             std::cout << "Producto generico anadido.\n";
         }

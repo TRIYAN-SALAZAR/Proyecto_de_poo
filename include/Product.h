@@ -46,7 +46,7 @@ class Product
     Product operator+(const Product& p) const;
 
     friend std::ostream& operator<<(std::ostream& out, const Product& p);
-    friend std::istream& operator>>(std::istream& in, Product& p);
+    friend std::istream& operator>>(std::istream& input, Product& p);
 };
 
 #endif // PRODUCT_H
