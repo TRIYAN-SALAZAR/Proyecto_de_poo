@@ -65,7 +65,6 @@ void Menu::processOption(int option)
         std::cout << "Stock: ";
         std::cin >> stock;
         clearInput();
-        std::cout << std::endl;
         
         if (t == 1)
         {
@@ -86,20 +85,9 @@ void Menu::processOption(int option)
         }
         else if (t == 2)
         {
-            std::string author, publisher, isbn, genre;
-            int pages = 0;
-            std::cout << "Autor: ";
-            std::getline(std::cin, author);
-            std::cout << "Editorial: ";
-            std::getline(std::cin, publisher);
-            std::cout << "ISBN: ";
-            std::getline(std::cin, isbn);
-            std::cout << "Paginas: ";
-            std::cin >> pages;
-            clearInput();
-            std::cout << "Genero: ";
-            std::getline(std::cin, genre);
-            Book *b = new Book(0, name, price, description, stock, author, publisher, isbn, pages, genre);
+            
+            Book *b = new Book(0, name, price, description, stock);
+            std::cin >> *b;
             gestor->addProduct(b);
             std::cout << "Libro anadido.\n";
         }

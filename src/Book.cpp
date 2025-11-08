@@ -1,11 +1,15 @@
-#include "Book.h"
 #include <iomanip>
 #include <iostream>
+#include "Book.h"
+#include "UTILITIES.h"
 
 Book::Book()
     : Product(), author(""), publisher(""), isbn(""), pages(0), genre("")
 {
 }
+
+Book::Book(int id, const std::string& name, float price, const std::string& description, int stock) 
+    : Product(id, stock, price, name, description), author(""), publisher(""), isbn(""), pages(0), genre(""){}
 
 Book::Book(int id, const std::string &name, float price, const std::string &description, int stock,
            const std::string &author, const std::string &publisher, const std::string &isbn, int pages, const std::string &genre)
@@ -74,4 +78,34 @@ void Book::printRow(std::ostream &out) const
         << std::setw(wPag) << pages
         << std::setw(wPrecio) << oss.str()
         << std::setw(wStock) << getStock();
+}
+
+std::istream& operator>>(std::istream &input, Book& book) {
+    std::string author, publisher, isbn, genre;
+    int pages = 0;
+
+    std::cout << "Autor: ";
+    std::getline(input, author);
+    
+    clearInput();
+    std::cout << "Editorial: ";
+    std::getline(input, publisher);
+    
+    std::cout << "ISBN: ";
+    std::getline(input, isbn);
+
+    std::cout << "Paginas: ";
+    input >> pages;
+    
+    clearInput();
+    std::cout << "Genero: ";
+    std::getline(input, genre);
+
+    book.setAuthor(author);
+    book.setPublisher(publisher);
+    book.setIsbn(isbn);
+    book.setGenre(genre);
+    book.setPages(pages);
+
+    return input;
 }

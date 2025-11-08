@@ -17,6 +17,8 @@ class Book : public Product
         Book();
         Book(int id, const std::string& name, float price, const std::string& description, int stock,
              const std::string& author, const std::string& publisher, const std::string& isbn, int pages, const std::string& genre);
+        
+        Book(int id, const std::string& name, float price, const std::string& description, int stock);
 
         std::string getAuthor() const;
         void setAuthor(const std::string& author);
@@ -35,7 +37,9 @@ class Book : public Product
 
         void showInfo() const override;
         float calculateFinalPrice() const override;
-    void printRow(std::ostream& out) const override;
+        void printRow(std::ostream& out) const override;
+
+        friend std::istream& operator>>(std::istream &input, Book& book);
 };
 
 #endif // BOOK_H
