@@ -71,9 +71,12 @@ void Menu::processOption(int option)
         if (!(isSuper || isAdmin || isSeller || isWarehouse)) { std::cout << "Permisos insuficientes para esta accion.\n"; return; }
     }
     if (option == 4) {
-        if (!(isSuper || isAdmin || isSeller)) { std::cout << "Permisos insuficientes para esta accion.\n"; return; }
+        if (!(isSuper || isAdmin || isSeller || isWarehouse)) { std::cout << "Permisos insuficientes para esta accion.\n"; return; }
     }
-    if (option == 5 || option == 6) {
+    if (option == 5) {
+        if (!(isSuper || isAdmin || isSeller || isWarehouse)) { std::cout << "Permisos insuficientes para esta accion.\n"; return; }
+    }
+    if (option == 6) {
         if (!(isSuper || isAdmin)) { std::cout << "Permisos insuficientes para esta accion.\n"; return; }
     }
     if (option == 7) {
