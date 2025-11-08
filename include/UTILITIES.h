@@ -2,7 +2,7 @@
 #define UTILITIES_H_INCLUDED
 
 #include <limits>
-#include <iostream> // por std::cin
+#include <iostream>
 
 inline void clearInput()
 {
