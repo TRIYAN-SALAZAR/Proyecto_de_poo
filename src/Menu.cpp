@@ -49,21 +49,6 @@ void Menu::processOption(int option)
         std::string name, description;
         float price = 0.0f;
         int stock = 0;
-        std::cout << std::endl;
-        std::cout << "Nombre: ";
-        std::getline(std::cin, name);
-
-        std::cout << "Precio: ";
-        std::cin >> price;
-        clearInput();
-        
-        std::cout << "Descripcion: ";
-        std::getline(std::cin, description);
-        
-        std::cout << "Stock: ";
-        std::cin >> stock;
-        clearInput();
-        std::cout << std::endl;
         
         if (t == 1)
         {
@@ -101,8 +86,24 @@ void Menu::processOption(int option)
             gestor->addProduct(b);
             std::cout << "Libro anadido.\n";
         }
-        else
+        else if(t == 3)
         {
+            std::cout << std::endl;
+            std::cout << "Nombre: ";
+            std::getline(std::cin, name);
+
+            std::cout << "Precio: ";
+            std::cin >> price;
+            clearInput();
+            
+            std::cout << "Descripcion: ";
+            std::getline(std::cin, description);
+            
+            std::cout << "Stock: ";
+            std::cin >> stock;
+            clearInput();
+            std::cout << std::endl;
+            
             Product *p = new Product(0, stock, price, name, description);
             gestor->addProduct(p);
             std::cout << "Producto generico anadido.\n";
