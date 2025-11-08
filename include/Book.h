@@ -5,7 +5,14 @@
 #include <string>
 
 class Book : public Product
-{
+{    
+    private:
+        std::string author;
+        std::string publisher;
+        std::string isbn;
+        int pages;
+        std::string genre;
+
     public:
         Book();
         Book(int id, const std::string& name, float price, const std::string& description, int stock,
@@ -29,13 +36,6 @@ class Book : public Product
         void showInfo() const override;
         float calculateFinalPrice() const override;
     void printRow(std::ostream& out) const override;
-
-    private:
-        std::string author;
-        std::string publisher;
-        std::string isbn;
-        int pages;
-        std::string genre;
 };
 
 #endif // BOOK_H
