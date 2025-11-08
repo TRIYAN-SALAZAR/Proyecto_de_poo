@@ -3,6 +3,8 @@
 #include "Menu.h"
 #include "Electronic.h"
 #include "Book.h"
+#include "UserManager.h"
+#include "User.h"
 
 int main()
 {
@@ -17,7 +19,21 @@ int main()
     gestor.addProduct(e2);
     gestor.addProduct(b1);
 
-    Menu menu(&gestor);
+    // Setup users
+    UserManager userManager;
+    User superu; superu.setName("superadmin"); superu.setPassword("root"); superu.setSuperAdmin(true); superu.setAdmin(true);
+    userManager.addUser(superu);
+
+    User admin; admin.setName("admin"); admin.setPassword("admin"); admin.setAdmin(true);
+    userManager.addUser(admin);
+
+    User seller; seller.setName("seller"); seller.setPassword("seller"); seller.setSeller(true);
+    userManager.addUser(seller);
+
+    User worker; worker.setName("worker"); worker.setPassword("worker"); worker.setWarehouseWorker(true);
+    userManager.addUser(worker);
+
+    Menu menu(&gestor, &userManager);
     menu.run();
 
     return 0;
