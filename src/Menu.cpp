@@ -28,8 +28,8 @@ void Menu::showMainMenu()
     if (isSuper || isAdmin || isWarehouse) std::cout << "1. Alta de producto\n";
     if (isSuper || isAdmin || isWarehouse) std::cout << "2. Baja de producto\n";
     if (isSuper || isAdmin || isSeller || isWarehouse) std::cout << "3. Busqueda de producto\n";
-    if (isSuper || isAdmin || isSeller) std::cout << "4. Mostrar todos los productos\n";
-    if (isSuper || isAdmin) std::cout << "5. Mostrar productos por tipo\n";
+    if (isSuper || isAdmin || isSeller || isWarehouse) std::cout << "4. Mostrar todos los productos\n";
+    if (isSuper || isAdmin || isSeller || isWarehouse) std::cout << "5. Mostrar productos por tipo\n";
     if (isSuper || isAdmin) std::cout << "6. Operadores\n";
     if (isSuper || isAdmin || isWarehouse) std::cout << "7. Modificar producto\n";
     if (isSuper || isAdmin) std::cout << "9. Gestion de usuarios\n";
