@@ -62,8 +62,16 @@ int User::addNewUser(const User &actor)
         return c == 'y' || c == 'Y';
     };
 
-    bool s = askRole("SuperAdmin?");
-    bool a = askRole("Admin?");
+    bool s = false;
+    bool a = false;
+    // Only SuperAdmin actors can assign SuperAdmin or Admin roles when creating users
+    if (actor.isSuperAdmin) {
+        s = askRole("SuperAdmin?");
+        a = askRole("Admin?");
+    } else {
+        // actor is at least Admin (because permission check passed) but not SuperAdmin
+        std::cout << "(Aviso) Como Admin no puede asignar roles Admin ni SuperAdmin al crear usuarios.\n";
+    }
     bool sel = askRole("Seller?");
     bool w = askRole("Warehouse worker?");
 
