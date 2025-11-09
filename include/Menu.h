@@ -24,6 +24,7 @@ class Menu
 
         void operatorsMenu();
         void modifyProduct();
+        void salesMenu();
 };
 
 #endif // MENU_H

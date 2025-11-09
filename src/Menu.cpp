@@ -34,6 +34,7 @@ void Menu::showMainMenu()
     if (isSuper || isAdmin || isWarehouse) std::cout << "7. Modificar producto\n";
     if (isSuper || isAdmin) std::cout << "9. Gestion de usuarios\n";
     if (isSuper) std::cout << "10. Asignar rol de Admin\n";
+    if (isSuper || isAdmin || isSeller) std::cout << "11. Ventas\n";
     std::cout << "8. Salir\n";
     std::cout << "Elige una opcion: ";
     std::cout << std::endl;
@@ -81,6 +82,9 @@ void Menu::processOption(int option)
     }
     if (option == 7) {
         if (!(isSuper || isAdmin || isWarehouse)) { std::cout << "Permisos insuficientes para esta accion.\n"; return; }
+    }
+    if (option == 11) {
+        if (!(isSuper || isAdmin || isSeller)) { std::cout << "Permisos insuficientes para esta accion.\n"; return; }
     }
     if (option == 1)
     {
@@ -177,6 +181,10 @@ void Menu::processOption(int option)
     else if (option == 6)
     {
         operatorsMenu();
+    }
+    else if (option == 11)
+    {
+        salesMenu();
     }
     else if (option == 7)
     {
@@ -401,5 +409,29 @@ void Menu::operatorsMenu()
             std::cout << "Resultado de la suma:\n";
             std::cout << combined << std::endl;
         }
+    }
+}
+
+void Menu::salesMenu()
+{
+    while (true) {
+        clearScreen();
+        std::cout << "-- Modulo Ventas --\n";
+        std::cout << "1. Nueva venta (stub)\n";
+        std::cout << "2. Buscar venta (stub)\n";
+        std::cout << "3. Volver\n";
+        std::cout << "Elige una opcion: ";
+        int op = 0;
+        if (!(std::cin >> op)) return;
+        clearInput();
+        if (op == 3) return;
+        if (op == 1) {
+            std::cout << "Crear venta - funcionalidad pendiente.\n";
+        } else if (op == 2) {
+            std::cout << "Buscar venta - funcionalidad pendiente.\n";
+        } else {
+            std::cout << "Opcion no valida.\n";
+        }
+        waitForEnter();
     }
 }
