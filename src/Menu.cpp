@@ -4,6 +4,8 @@
 #include "Electronic.h"
 #include "Book.h"
 #include "UTILITIES.h"
+#include <iomanip>
+#include <sstream>
 
 Menu::Menu(Gestor *gestor, UserManager* userManager, SalesManager* salesManager)
     : gestor(gestor), userManager(userManager), currentUser(nullptr), salesManager(salesManager)
@@ -434,6 +436,8 @@ void Menu::salesMenu()
             std::cout << "Producto: " << prod->getName() << "\n";
             std::cout << "Ingrese unidades vendidas: ";
             int units; if (!(std::cin >> units)) { clearInput(); std::cout << "Unidades invalidas.\n"; continue; } clearInput();
+            if (units <= 0) { std::cout << "La cantidad debe ser mayor que 0.\n"; continue; }
+            if (units > prod->getStock()) { std::cout << "Stock insuficiente. Stock actual: " << prod->getStock() << "\n"; continue; }
             float total = units * prod->getPrice();
             std::string ptype = "Producto";
             if (dynamic_cast<Electronic*>(prod)) ptype = "Electronic";
@@ -441,9 +445,29 @@ void Menu::salesMenu()
             Sale s(0, currentUser->getCode(), currentUser->getName(), ptype, prod->getName(), units, total);
             int saleId = 0;
             if (salesManager) saleId = salesManager->addSale(s);
+            // decrement stock
+            prod->setStock(prod->getStock() - units);
+
+            // print as table
+            const int wId = 6, wUcode = 10, wUname = 16, wPtype = 12, wPname = 22, wUnits = 8, wTotal = 12;
+            std::ostringstream oss; oss << std::fixed << std::setprecision(2) << s.totalPrice;
+            std::cout << std::left << std::setw(wId) << "ID"
+                      << std::setw(wUcode) << "UCode"
+                      << std::setw(wUname) << "Usuario"
+                      << std::setw(wPtype) << "Tipo"
+                      << std::setw(wPname) << "Producto"
+                      << std::setw(wUnits) << "Unids"
+                      << std::setw(wTotal) << "Total" << "\n";
+            std::cout << std::string(wId+wUcode+wUname+wPtype+wPname+wUnits+wTotal, '-') << "\n";
+            std::cout << std::left << std::setw(wId) << saleId
+                      << std::setw(wUcode) << s.userCode
+                      << std::setw(wUname) << s.userName
+                      << std::setw(wPtype) << s.productType
+                      << std::setw(wPname) << s.productName
+                      << std::setw(wUnits) << s.units
+                      << std::setw(wTotal) << oss.str() << "\n";
             std::cout << "Venta registrada. ID venta: " << saleId << "\n";
-            std::cout << "Usuario: " << s.userName << " (code=" << s.userCode << ")\n";
-            std::cout << "Producto: [" << s.productType << "] " << s.productName << " x" << s.units << " => Total: " << s.totalPrice << "\n";
+            // details already printed in table
         } else if (op == 2) {
             std::cout << "Buscar por: 1=ID venta, 2=Codigo usuario: ";
             int choice; if (!(std::cin >> choice)) { clearInput(); std::cout << "Opcion invalida.\n"; continue; } clearInput();
@@ -452,16 +476,47 @@ void Menu::salesMenu()
                 Sale* found = salesManager ? salesManager->findById(sid) : nullptr;
                 if (!found) { std::cout << "Venta no encontrada.\n"; }
                 else {
-                    std::cout << "Venta ID: " << found->saleId << " | Usuario: " << found->userName << " (" << found->userCode << ")\n";
-                    std::cout << "Producto: [" << found->productType << "] " << found->productName << " x" << found->units << " => Total: " << found->totalPrice << "\n";
+                    const int wId = 6, wUcode = 10, wUname = 16, wPtype = 12, wPname = 22, wUnits = 8, wTotal = 12;
+                    std::ostringstream oss; oss << std::fixed << std::setprecision(2) << found->totalPrice;
+                    std::cout << std::left << std::setw(wId) << "ID"
+                              << std::setw(wUcode) << "UCode"
+                              << std::setw(wUname) << "Usuario"
+                              << std::setw(wPtype) << "Tipo"
+                              << std::setw(wPname) << "Producto"
+                              << std::setw(wUnits) << "Unids"
+                              << std::setw(wTotal) << "Total" << "\n";
+                    std::cout << std::string(wId+wUcode+wUname+wPtype+wPname+wUnits+wTotal, '-') << "\n";
+                    std::cout << std::left << std::setw(wId) << found->saleId
+                              << std::setw(wUcode) << found->userCode
+                              << std::setw(wUname) << found->userName
+                              << std::setw(wPtype) << found->productType
+                              << std::setw(wPname) << found->productName
+                              << std::setw(wUnits) << found->units
+                              << std::setw(wTotal) << oss.str() << "\n";
                 }
             } else if (choice == 2) {
                 std::cout << "Ingrese codigo de usuario: "; int ucode; if (!(std::cin >> ucode)) { clearInput(); std::cout << "Codigo invalido.\n"; continue; } clearInput();
                 auto list = salesManager ? salesManager->findByUserCode(ucode) : std::vector<Sale>();
                 if (list.empty()) { std::cout << "No se encontraron ventas para ese usuario.\n"; }
                 else {
+                    const int wId = 6, wUcode = 10, wUname = 16, wPtype = 12, wPname = 22, wUnits = 8, wTotal = 12;
+                    std::cout << std::left << std::setw(wId) << "ID"
+                              << std::setw(wUcode) << "UCode"
+                              << std::setw(wUname) << "Usuario"
+                              << std::setw(wPtype) << "Tipo"
+                              << std::setw(wPname) << "Producto"
+                              << std::setw(wUnits) << "Unids"
+                              << std::setw(wTotal) << "Total" << "\n";
+                    std::cout << std::string(wId+wUcode+wUname+wPtype+wPname+wUnits+wTotal, '-') << "\n";
                     for (const auto &fs : list) {
-                        std::cout << "Venta ID: " << fs.saleId << " | Producto: [" << fs.productType << "] " << fs.productName << " x" << fs.units << " => Total: " << fs.totalPrice << " | Usuario: " << fs.userName << " (" << fs.userCode << ")\n";
+                        std::ostringstream oss; oss << std::fixed << std::setprecision(2) << fs.totalPrice;
+                        std::cout << std::left << std::setw(wId) << fs.saleId
+                                  << std::setw(wUcode) << fs.userCode
+                                  << std::setw(wUname) << fs.userName
+                                  << std::setw(wPtype) << fs.productType
+                                  << std::setw(wPname) << fs.productName
+                                  << std::setw(wUnits) << fs.units
+                                  << std::setw(wTotal) << oss.str() << "\n";
                     }
                 }
             } else {
