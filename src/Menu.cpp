@@ -30,6 +30,91 @@ void Menu::printUserBanner() const
     else std::cout << info << "\n";
 }
 
+// Render an interactive selector and handle keyboard input (Windows-only
+// single-key reads provided by readKey). Returns selected index, -1 on Esc,
+// or -2 to indicate the caller should fall back to numeric input mode.
+int Menu::selectFromList(const std::vector<std::string> &items, const std::string &title, int startIndex, bool allowEsc) {
+    int selected = startIndex;
+    if (selected < 0) selected = 0;
+    if (selected >= (int)items.size()) selected = (int)items.size() - 1;
+
+    int unknownCount = 0;
+    while (true) {
+        clearScreen();
+        printUserBanner();
+        if (!title.empty()) {
+            std::cout << title << "\n\n";
+        }
+
+        for (int i = 0; i < (int)items.size(); ++i) {
+            if (i == selected) {
+                // Inverse video for highlight
+                std::cout << "\x1b[7m" << "  " << items[i] << "\x1b[0m" << "\n";
+            } else {
+                std::cout << "   " << items[i] << "\n";
+            }
+        }
+
+        char c = 0;
+        Key k = readKey(c);
+        if (k == Key::Up) {
+            unknownCount = 0;
+            selected = (selected - 1 + (int)items.size()) % (int)items.size();
+        } else if (k == Key::Down) {
+            unknownCount = 0;
+            selected = (selected + 1) % (int)items.size();
+        } else if (k == Key::Enter) {
+            unknownCount = 0;
+            return selected;
+        } else if ((k == Key::Esc) && allowEsc) {
+            return -1;
+        } else if (k == Key::Char && c >= '1' && c <= '9') {
+            int idx = (c - '1');
+            if (idx >= 0 && idx < (int)items.size()) return idx;
+            unknownCount = 0;
+        } else {
+            // Unknown key - ignore and continue. If the terminal does not
+            // support single-key reads (POSIX stub) we'll receive Unknown
+            // repeatedly; after a few tries, return -2 to signal caller to
+            // fall back to numeric input mode.
+            ++unknownCount;
+            if (unknownCount > 8) return -2;
+        }
+    }
+}
+
+// Build and display the main menu as an interactive selector. Returns
+// the mapped option number (same numbers used by processOption), -1 on
+// cancel, or -2 to signal fallback to numeric input.
+int Menu::interactiveSelectMainMenu() {
+    std::vector<std::pair<int, std::string>> options;
+    options.push_back({1, "Alta de producto"});
+    options.push_back({2, "Baja de producto"});
+    options.push_back({3, "Busqueda de producto"});
+    options.push_back({4, "Mostrar todos los productos"});
+    options.push_back({5, "Mostrar productos por tipo"});
+    options.push_back({6, "Operadores"});
+    options.push_back({7, "Modificar producto"});
+    if (currentUser && (currentUser->isAdminRole() || currentUser->isSuperAdminRole())) {
+        options.push_back({9, "Gestion de usuarios"});
+    }
+    if (currentUser && currentUser->isSuperAdminRole()) {
+        options.push_back({10, "Asignar rol de Admin"});
+    }
+    if (currentUser && (currentUser->isSuperAdminRole() || currentUser->isAdminRole() || currentUser->isSellerRole())) {
+        options.push_back({11, "Ventas"});
+    }
+    options.push_back({8, "Salir"});
+
+    std::vector<std::string> labels;
+    for (auto &p : options) labels.push_back(std::to_string(p.first) + ". " + p.second);
+
+    int sel = selectFromList(labels, "Menu Principal", 0, true);
+    if (sel == -2) return -2; // signal to caller to fall back to numeric input
+    if (sel < 0) return -1;
+    return options[sel].first;
+}
+
 void Menu::showMainMenu()
 {
     printUserBanner();
@@ -388,12 +473,23 @@ void Menu::run()
     bool exit = false;
     while (!exit)
     {
-        clearScreen();
-        showMainMenu();
+        // Try interactive selector first (arrow keys + Enter). If the
+        // terminal doesn't support single-key reads, interactiveSelectMainMenu
+        // will return -2 and we fall back to numeric input.
+        int selected = interactiveSelectMainMenu();
         int opt = 0;
-        if (!(std::cin >> opt))
-            break;
-        clearInput();
+        if (selected == -2) {
+            // fallback to numeric
+            clearScreen();
+            showMainMenu();
+            if (!(std::cin >> opt)) break;
+            clearInput();
+        } else if (selected == -1) {
+            // treat ESC as exit (map to option 8 / logout)
+            opt = 8;
+        } else {
+            opt = selected;
+        }
 
         if (!processOption(opt))
             break;

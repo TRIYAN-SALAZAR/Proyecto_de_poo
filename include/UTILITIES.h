@@ -15,6 +15,49 @@
 #include <unistd.h>
 #endif
 
+// Key reading abstraction for simple single-key navigation (Windows-only
+// implementation here). The function readKey will return a Key value and
+// optionally set the output character for printable keys.
+enum class Key {
+    Up,
+    Down,
+    Left,
+    Right,
+    Enter,
+    Esc,
+    Char,
+    Unknown
+};
+
+inline Key readKey(char &outChar)
+{
+#ifdef _WIN32
+    outChar = '\0';
+    int c = _getch();
+    if (c == 0 || c == 0xE0) {
+        // Extended key (arrows, function keys)
+        int c2 = _getch();
+        switch (c2) {
+            case 72: return Key::Up;
+            case 80: return Key::Down;
+            case 75: return Key::Left;
+            case 77: return Key::Right;
+            default: return Key::Unknown;
+        }
+    } else {
+        if (c == 13) return Key::Enter;
+        if (c == 27) return Key::Esc;
+        if (c >= 32 && c <= 126) { outChar = (char)c; return Key::Char; }
+        return Key::Unknown;
+    }
+#else
+    // POSIX not implemented in this header for now; return Unknown so
+    // caller can fall back to numeric input. We'll implement POSIX later.
+    outChar = '\0';
+    return Key::Unknown;
+#endif
+}
+
 inline void clearInput()
 {
     // Descarta hasta el siguiente '\n' o hasta el máximo tamaño del stream
