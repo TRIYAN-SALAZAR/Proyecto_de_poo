@@ -141,7 +141,20 @@ bool Menu::processOption(int option)
             std::string n; std::getline(std::cin, n);
             User* target = userManager->findByName(n);
             if (!target) { std::cout << "Usuario no encontrado.\n"; return true; }
+            // Prevent deleting currently logged-in user
             if (target->getName() == currentUser->getName()) { std::cout << "No puede eliminar al usuario con sesion iniciada.\n"; return true; }
+
+            // Count admins (Admin or SuperAdmin) to avoid leaving system without admins
+            int adminCount = 0;
+            for (const auto &u : userManager->allUsers()) {
+                if (u.isAdminRole() || u.isSuperAdminRole()) ++adminCount;
+            }
+            bool targetIsAdmin = target->isAdminRole() || target->isSuperAdminRole();
+            if (targetIsAdmin && adminCount <= 1) {
+                std::cout << "Operacion denegada: no se puede eliminar al ultimo usuario con rol de Admin/SuperAdmin.\n";
+                return true;
+            }
+
             std::cout << "Confirma eliminar usuario '" << target->getName() << "'? (y/n): ";
             char c = 'n';
             if (!(std::cin >> c)) { std::cin.clear(); clearInput(); std::cout << "Operacion cancelada.\n"; return true; }
