@@ -126,7 +126,7 @@ bool Menu::processOption(int option)
             std::cout << "Permisos insuficientes para gestionar usuarios.\n";
             return true;
         }
-        std::cout << "Gestion de usuarios: 1=Listar, 2=Agregar, 3=Eliminar: ";
+        std::cout << "Gestion de usuarios " << std::endl << "1. Listar" << std::endl << "2=Agregar" << std::endl << "3=Eliminar" << std::endl;
         int choice; if (!(std::cin >> choice)) { clearInput(); return true; } clearInput();
         if (choice == 1) {
             // Print users in a table: ID | Usuario | Rol
