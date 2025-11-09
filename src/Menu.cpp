@@ -481,36 +481,18 @@ void Menu::salesMenu()
             std::cout << "Venta registrada. ID venta: " << saleId << "\n";
             // details already printed in table
         } else if (op == 2) {
-            std::cout << "Buscar por: 1=ID venta, 2=Codigo usuario: ";
-            int choice; if (!(std::cin >> choice)) { clearInput(); std::cout << "Opcion invalida.\n"; continue; } clearInput();
-            if (choice == 1) {
-                std::cout << "Ingrese ID de venta: "; int sid; if (!(std::cin >> sid)) { clearInput(); std::cout << "ID invalido.\n"; continue; } clearInput();
-                Sale* found = salesManager ? salesManager->findById(sid) : nullptr;
-                if (!found) { std::cout << "Venta no encontrada.\n"; }
-                else {
-                    const int wId = 6, wUcode = 10, wUname = 16, wPtype = 12, wPname = 22, wUnits = 8, wTotal = 12;
-                    std::ostringstream oss; oss << std::fixed << std::setprecision(2) << found->totalPrice;
-                    std::cout << std::left << std::setw(wId) << "ID"
-                              << std::setw(wUcode) << "UCode"
-                              << std::setw(wUname) << "Usuario"
-                              << std::setw(wPtype) << "Tipo"
-                              << std::setw(wPname) << "Producto"
-                              << std::setw(wUnits) << "Unids"
-                              << std::setw(wTotal) << "Total" << "\n";
-                    std::cout << std::string(wId+wUcode+wUname+wPtype+wPname+wUnits+wTotal, '-') << "\n";
-                    std::cout << std::left << std::setw(wId) << found->saleId
-                              << std::setw(wUcode) << found->userCode
-                              << std::setw(wUname) << found->userName
-                              << std::setw(wPtype) << found->productType
-                              << std::setw(wPname) << found->productName
-                              << std::setw(wUnits) << found->units
-                              << std::setw(wTotal) << oss.str() << "\n";
-                }
-            } else if (choice == 2) {
-                std::cout << "Ingrese codigo de usuario: "; int ucode; if (!(std::cin >> ucode)) { clearInput(); std::cout << "Codigo invalido.\n"; continue; } clearInput();
+            // Behavior depends on user role
+            bool isSeller = currentUser->isSellerRole();
+            bool isAdmin = currentUser->isAdminRole();
+            bool isSuper = currentUser->isSuperAdminRole();
+
+            if (isSeller && !isAdmin && !isSuper) {
+                // Seller: directly show their own sales
+                int ucode = currentUser->getCode();
                 auto list = salesManager ? salesManager->findByUserCode(ucode) : std::vector<Sale>();
-                if (list.empty()) { std::cout << "No se encontraron ventas para ese usuario.\n"; }
-                else {
+                if (list.empty()) {
+                    std::cout << "No se encontraron ventas para su usuario.\n";
+                } else {
                     const int wId = 6, wUcode = 10, wUname = 16, wPtype = 12, wPname = 22, wUnits = 8, wTotal = 12;
                     std::cout << std::left << std::setw(wId) << "ID"
                               << std::setw(wUcode) << "UCode"
@@ -531,8 +513,140 @@ void Menu::salesMenu()
                                   << std::setw(wTotal) << oss.str() << "\n";
                     }
                 }
+            } else if (isAdmin || isSuper) {
+                // Admin: give options to view all sales or filter by user or by ID
+                std::cout << "Buscar ventas: 1=Todas las ventas, 2=Filtrar por codigo de usuario, 3=Buscar por ID de venta: ";
+                int choice; if (!(std::cin >> choice)) { clearInput(); std::cout << "Opcion invalida.\n"; continue; } clearInput();
+                if (choice == 1) {
+                    auto list = salesManager ? salesManager->allSales() : std::vector<Sale>();
+                    if (list.empty()) { std::cout << "No hay ventas registradas.\n"; }
+                    else {
+                        const int wId = 6, wUcode = 10, wUname = 16, wPtype = 12, wPname = 22, wUnits = 8, wTotal = 12;
+                        std::cout << std::left << std::setw(wId) << "ID"
+                                  << std::setw(wUcode) << "UCode"
+                                  << std::setw(wUname) << "Usuario"
+                                  << std::setw(wPtype) << "Tipo"
+                                  << std::setw(wPname) << "Producto"
+                                  << std::setw(wUnits) << "Unids"
+                                  << std::setw(wTotal) << "Total" << "\n";
+                        std::cout << std::string(wId+wUcode+wUname+wPtype+wPname+wUnits+wTotal, '-') << "\n";
+                        for (const auto &fs : list) {
+                            std::ostringstream oss; oss << std::fixed << std::setprecision(2) << fs.totalPrice;
+                            std::cout << std::left << std::setw(wId) << fs.saleId
+                                      << std::setw(wUcode) << fs.userCode
+                                      << std::setw(wUname) << fs.userName
+                                      << std::setw(wPtype) << fs.productType
+                                      << std::setw(wPname) << fs.productName
+                                      << std::setw(wUnits) << fs.units
+                                      << std::setw(wTotal) << oss.str() << "\n";
+                        }
+                    }
+                } else if (choice == 2) {
+                    std::cout << "Ingrese codigo de usuario: "; int ucode; if (!(std::cin >> ucode)) { clearInput(); std::cout << "Codigo invalido.\n"; continue; } clearInput();
+                    auto list = salesManager ? salesManager->findByUserCode(ucode) : std::vector<Sale>();
+                    if (list.empty()) { std::cout << "No se encontraron ventas para ese usuario.\n"; }
+                    else {
+                        const int wId = 6, wUcode = 10, wUname = 16, wPtype = 12, wPname = 22, wUnits = 8, wTotal = 12;
+                        std::cout << std::left << std::setw(wId) << "ID"
+                                  << std::setw(wUcode) << "UCode"
+                                  << std::setw(wUname) << "Usuario"
+                                  << std::setw(wPtype) << "Tipo"
+                                  << std::setw(wPname) << "Producto"
+                                  << std::setw(wUnits) << "Unids"
+                                  << std::setw(wTotal) << "Total" << "\n";
+                        std::cout << std::string(wId+wUcode+wUname+wPtype+wPname+wUnits+wTotal, '-') << "\n";
+                        for (const auto &fs : list) {
+                            std::ostringstream oss; oss << std::fixed << std::setprecision(2) << fs.totalPrice;
+                            std::cout << std::left << std::setw(wId) << fs.saleId
+                                      << std::setw(wUcode) << fs.userCode
+                                      << std::setw(wUname) << fs.userName
+                                      << std::setw(wPtype) << fs.productType
+                                      << std::setw(wPname) << fs.productName
+                                      << std::setw(wUnits) << fs.units
+                                      << std::setw(wTotal) << oss.str() << "\n";
+                        }
+                    }
+                } else if (choice == 3) {
+                    std::cout << "Ingrese ID de venta: "; int sid; if (!(std::cin >> sid)) { clearInput(); std::cout << "ID invalido.\n"; continue; } clearInput();
+                    Sale* found = salesManager ? salesManager->findById(sid) : nullptr;
+                    if (!found) { std::cout << "Venta no encontrada.\n"; }
+                    else {
+                        const int wId = 6, wUcode = 10, wUname = 16, wPtype = 12, wPname = 22, wUnits = 8, wTotal = 12;
+                        std::ostringstream oss; oss << std::fixed << std::setprecision(2) << found->totalPrice;
+                        std::cout << std::left << std::setw(wId) << "ID"
+                                  << std::setw(wUcode) << "UCode"
+                                  << std::setw(wUname) << "Usuario"
+                                  << std::setw(wPtype) << "Tipo"
+                                  << std::setw(wPname) << "Producto"
+                                  << std::setw(wUnits) << "Unids"
+                                  << std::setw(wTotal) << "Total" << "\n";
+                        std::cout << std::string(wId+wUcode+wUname+wPtype+wPname+wUnits+wTotal, '-') << "\n";
+                        std::cout << std::left << std::setw(wId) << found->saleId
+                                  << std::setw(wUcode) << found->userCode
+                                  << std::setw(wUname) << found->userName
+                                  << std::setw(wPtype) << found->productType
+                                  << std::setw(wPname) << found->productName
+                                  << std::setw(wUnits) << found->units
+                                  << std::setw(wTotal) << oss.str() << "\n";
+                    }
+                } else {
+                    std::cout << "Opcion no valida.\n";
+                }
             } else {
-                std::cout << "Opcion no valida.\n";
+                // For other roles, fallback to previous behavior (allow searching by ID or user code)
+                std::cout << "Buscar por: 1=ID venta, 2=Codigo usuario: ";
+                int choice; if (!(std::cin >> choice)) { clearInput(); std::cout << "Opcion invalida.\n"; continue; } clearInput();
+                if (choice == 1) {
+                    std::cout << "Ingrese ID de venta: "; int sid; if (!(std::cin >> sid)) { clearInput(); std::cout << "ID invalido.\n"; continue; } clearInput();
+                    Sale* found = salesManager ? salesManager->findById(sid) : nullptr;
+                    if (!found) { std::cout << "Venta no encontrada.\n"; }
+                    else {
+                        const int wId = 6, wUcode = 10, wUname = 16, wPtype = 12, wPname = 22, wUnits = 8, wTotal = 12;
+                        std::ostringstream oss; oss << std::fixed << std::setprecision(2) << found->totalPrice;
+                        std::cout << std::left << std::setw(wId) << "ID"
+                                  << std::setw(wUcode) << "UCode"
+                                  << std::setw(wUname) << "Usuario"
+                                  << std::setw(wPtype) << "Tipo"
+                                  << std::setw(wPname) << "Producto"
+                                  << std::setw(wUnits) << "Unids"
+                                  << std::setw(wTotal) << "Total" << "\n";
+                        std::cout << std::string(wId+wUcode+wUname+wPtype+wPname+wUnits+wTotal, '-') << "\n";
+                        std::cout << std::left << std::setw(wId) << found->saleId
+                                  << std::setw(wUcode) << found->userCode
+                                  << std::setw(wUname) << found->userName
+                                  << std::setw(wPtype) << found->productType
+                                  << std::setw(wPname) << found->productName
+                                  << std::setw(wUnits) << found->units
+                                  << std::setw(wTotal) << oss.str() << "\n";
+                    }
+                } else if (choice == 2) {
+                    std::cout << "Ingrese codigo de usuario: "; int ucode; if (!(std::cin >> ucode)) { clearInput(); std::cout << "Codigo invalido.\n"; continue; } clearInput();
+                    auto list = salesManager ? salesManager->findByUserCode(ucode) : std::vector<Sale>();
+                    if (list.empty()) { std::cout << "No se encontraron ventas para ese usuario.\n"; }
+                    else {
+                        const int wId = 6, wUcode = 10, wUname = 16, wPtype = 12, wPname = 22, wUnits = 8, wTotal = 12;
+                        std::cout << std::left << std::setw(wId) << "ID"
+                                  << std::setw(wUcode) << "UCode"
+                                  << std::setw(wUname) << "Usuario"
+                                  << std::setw(wPtype) << "Tipo"
+                                  << std::setw(wPname) << "Producto"
+                                  << std::setw(wUnits) << "Unids"
+                                  << std::setw(wTotal) << "Total" << "\n";
+                        std::cout << std::string(wId+wUcode+wUname+wPtype+wPname+wUnits+wTotal, '-') << "\n";
+                        for (const auto &fs : list) {
+                            std::ostringstream oss; oss << std::fixed << std::setprecision(2) << fs.totalPrice;
+                            std::cout << std::left << std::setw(wId) << fs.saleId
+                                      << std::setw(wUcode) << fs.userCode
+                                      << std::setw(wUname) << fs.userName
+                                      << std::setw(wPtype) << fs.productType
+                                      << std::setw(wPname) << fs.productName
+                                      << std::setw(wUnits) << fs.units
+                                      << std::setw(wTotal) << oss.str() << "\n";
+                        }
+                    }
+                } else {
+                    std::cout << "Opcion no valida.\n";
+                }
             }
         } else {
             std::cout << "Opcion no valida.\n";
