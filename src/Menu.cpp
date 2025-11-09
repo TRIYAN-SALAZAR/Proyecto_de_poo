@@ -5,8 +5,8 @@
 #include "Book.h"
 #include "UTILITIES.h"
 
-Menu::Menu(Gestor *gestor, UserManager* userManager)
-    : gestor(gestor), userManager(userManager), currentUser(nullptr)
+Menu::Menu(Gestor *gestor, UserManager* userManager, SalesManager* salesManager)
+    : gestor(gestor), userManager(userManager), currentUser(nullptr), salesManager(salesManager)
 {
 }
 
@@ -417,8 +417,8 @@ void Menu::salesMenu()
     while (true) {
         clearScreen();
         std::cout << "-- Modulo Ventas --\n";
-        std::cout << "1. Nueva venta (stub)\n";
-        std::cout << "2. Buscar venta (stub)\n";
+        std::cout << "1. Nueva venta\n";
+        std::cout << "2. Buscar venta\n";
         std::cout << "3. Volver\n";
         std::cout << "Elige una opcion: ";
         int op = 0;
@@ -426,9 +426,47 @@ void Menu::salesMenu()
         clearInput();
         if (op == 3) return;
         if (op == 1) {
-            std::cout << "Crear venta - funcionalidad pendiente.\n";
+            // Create sale
+            std::cout << "Ingrese ID del producto a vender: ";
+            int pid; if (!(std::cin >> pid)) { clearInput(); std::cout << "ID invalido.\n"; continue; } clearInput();
+            Product* prod = gestor->findProduct(pid);
+            if (!prod) { std::cout << "Producto no encontrado.\n"; continue; }
+            std::cout << "Producto: " << prod->getName() << "\n";
+            std::cout << "Ingrese unidades vendidas: ";
+            int units; if (!(std::cin >> units)) { clearInput(); std::cout << "Unidades invalidas.\n"; continue; } clearInput();
+            float total = units * prod->getPrice();
+            std::string ptype = "Producto";
+            if (dynamic_cast<Electronic*>(prod)) ptype = "Electronic";
+            else if (dynamic_cast<Book*>(prod)) ptype = "Book";
+            Sale s(0, currentUser->getCode(), currentUser->getName(), ptype, prod->getName(), units, total);
+            int saleId = 0;
+            if (salesManager) saleId = salesManager->addSale(s);
+            std::cout << "Venta registrada. ID venta: " << saleId << "\n";
+            std::cout << "Usuario: " << s.userName << " (code=" << s.userCode << ")\n";
+            std::cout << "Producto: [" << s.productType << "] " << s.productName << " x" << s.units << " => Total: " << s.totalPrice << "\n";
         } else if (op == 2) {
-            std::cout << "Buscar venta - funcionalidad pendiente.\n";
+            std::cout << "Buscar por: 1=ID venta, 2=Codigo usuario: ";
+            int choice; if (!(std::cin >> choice)) { clearInput(); std::cout << "Opcion invalida.\n"; continue; } clearInput();
+            if (choice == 1) {
+                std::cout << "Ingrese ID de venta: "; int sid; if (!(std::cin >> sid)) { clearInput(); std::cout << "ID invalido.\n"; continue; } clearInput();
+                Sale* found = salesManager ? salesManager->findById(sid) : nullptr;
+                if (!found) { std::cout << "Venta no encontrada.\n"; }
+                else {
+                    std::cout << "Venta ID: " << found->saleId << " | Usuario: " << found->userName << " (" << found->userCode << ")\n";
+                    std::cout << "Producto: [" << found->productType << "] " << found->productName << " x" << found->units << " => Total: " << found->totalPrice << "\n";
+                }
+            } else if (choice == 2) {
+                std::cout << "Ingrese codigo de usuario: "; int ucode; if (!(std::cin >> ucode)) { clearInput(); std::cout << "Codigo invalido.\n"; continue; } clearInput();
+                auto list = salesManager ? salesManager->findByUserCode(ucode) : std::vector<Sale>();
+                if (list.empty()) { std::cout << "No se encontraron ventas para ese usuario.\n"; }
+                else {
+                    for (const auto &fs : list) {
+                        std::cout << "Venta ID: " << fs.saleId << " | Producto: [" << fs.productType << "] " << fs.productName << " x" << fs.units << " => Total: " << fs.totalPrice << " | Usuario: " << fs.userName << " (" << fs.userCode << ")\n";
+                    }
+                }
+            } else {
+                std::cout << "Opcion no valida.\n";
+            }
         } else {
             std::cout << "Opcion no valida.\n";
         }

@@ -5,6 +5,7 @@
 #include "Book.h"
 #include "UserManager.h"
 #include "User.h"
+#include "SalesManager.h"
 
 int main()
 {
@@ -33,7 +34,9 @@ int main()
     User worker; worker.setName("worker"); worker.setPassword("worker"); worker.setWarehouseWorker(true);
     userManager.addUser(worker);
 
-    Menu menu(&gestor, &userManager);
+    SalesManager salesManager;
+
+    Menu menu(&gestor, &userManager, &salesManager);
     menu.run();
 
     return 0;
