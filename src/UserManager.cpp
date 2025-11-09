@@ -32,3 +32,14 @@ std::vector<User>& UserManager::allUsers()
 {
     return users;
 }
+
+bool UserManager::removeByName(const std::string &name)
+{
+    for (auto it = users.begin(); it != users.end(); ++it) {
+        if (it->getName() == name) {
+            users.erase(it);
+            return true;
+        }
+    }
+    return false;
+}

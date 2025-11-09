@@ -35,30 +35,58 @@ int User::addNewUser(const User &actor)
         std::cout << "Permisos insuficientes para agregar usuarios.\n";
         return 0;
     }
+    // Consume leftover newline if any
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
-    int code = 0;
-    std::cout << "Ingrese codigo: ";
-    std::cin >> code;
-    if (code) {
-        std::cout << "Codigo vacio. Operacion cancelada." << std::endl;
+    std::string uname;
+    std::cout << "Ingrese nombre de usuario: ";
+    std::getline(std::cin, uname);
+    if (uname.empty()) {
+        std::cout << "Nombre vacio. Operacion cancelada." << std::endl;
         return 0;
     }
 
+    std::string pw;
     std::cout << "Ingrese password: ";
-    std::getline(std::cin, password);
+    std::getline(std::cin, pw);
+    if (pw.empty()) {
+        std::cout << "Password vacio. Operacion cancelada." << std::endl;
+        return 0;
+    }
 
     auto askRole = [](const char *prompt) -> bool {
         std::cout << prompt << " (y/n): ";
         char c = 'n';
-        if (!(std::cin >> c)) return false;
+        if (!(std::cin >> c)) { std::cin.clear(); std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); return false; }
         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
         return c == 'y' || c == 'Y';
     };
 
-    isSuperAdmin = askRole("SuperAdmin?");
-    isAdmin = askRole("Admin?");
-    isSeller = askRole("Seller?");
-    isWarehouseWorker = askRole("Warehouse worker?");
+    bool s = askRole("SuperAdmin?");
+    bool a = askRole("Admin?");
+    bool sel = askRole("Seller?");
+    bool w = askRole("Warehouse worker?");
+
+    // Confirm
+    std::cout << "Confirma crear usuario '" << uname << "' con los roles: ";
+    if (s) std::cout << "SuperAdmin ";
+    if (a) std::cout << "Admin ";
+    if (sel) std::cout << "Seller ";
+    if (w) std::cout << "WarehouseWorker ";
+    if (!s && !a && !sel && !w) std::cout << "(ninguno)";
+    std::cout << " ? (y/n): ";
+    char conf = 'n';
+    if (!(std::cin >> conf)) { std::cin.clear(); std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); std::cout << "Operacion cancelada." << std::endl; return 0; }
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    if (!(conf == 'y' || conf == 'Y')) { std::cout << "Operacion cancelada." << std::endl; return 0; }
+
+    // apply values to this user object
+    name = uname;
+    password = pw;
+    isSuperAdmin = s;
+    isAdmin = a;
+    isSeller = sel;
+    isWarehouseWorker = w;
 
     code = generateUserCode();
     std::cout << "Usuario creado con codigo: " << code << std::endl;

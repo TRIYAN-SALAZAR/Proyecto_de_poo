@@ -118,7 +118,18 @@ bool Menu::processOption(int option)
             std::string n; std::getline(std::cin, n);
             User* target = userManager->findByName(n);
             if (!target) { std::cout << "Usuario no encontrado.\n"; return true; }
-            target->deleteUser(*currentUser);
+            if (target->getName() == currentUser->getName()) { std::cout << "No puede eliminar al usuario con sesion iniciada.\n"; return true; }
+            std::cout << "Confirma eliminar usuario '" << target->getName() << "'? (y/n): ";
+            char c = 'n';
+            if (!(std::cin >> c)) { std::cin.clear(); clearInput(); std::cout << "Operacion cancelada.\n"; return true; }
+            clearInput();
+            if (c == 'y' || c == 'Y') {
+                bool removed = userManager->removeByName(target->getName());
+                if (removed) std::cout << "Usuario eliminado.\n";
+                else std::cout << "Error eliminando usuario.\n";
+            } else {
+                std::cout << "Operacion cancelada.\n";
+            }
         }
         return true;
     }

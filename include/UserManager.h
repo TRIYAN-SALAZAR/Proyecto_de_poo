@@ -16,6 +16,7 @@ public:
     User* findByName(const std::string &name);
     User* authenticate(const std::string &name, const std::string &password);
     std::vector<User>& allUsers();
+    bool removeByName(const std::string &name);
 };
 
 #endif // USERMANAGER_H
