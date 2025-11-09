@@ -19,10 +19,10 @@ class Menu
     Menu(Gestor* gestor, UserManager* userManager, SalesManager* salesManager);
 
     void showMainMenu();
-        void showProductTypeMenu() const;
-        void showOperatorsMenu() const;
-        void processOption(int option);
-        void run();
+    void showProductTypeMenu() const;
+    void showOperatorsMenu() const;
+    bool processOption(int option);
+    void run();
 
         void operatorsMenu();
         void modifyProduct();

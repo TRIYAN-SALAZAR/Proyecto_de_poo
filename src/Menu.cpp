@@ -52,13 +52,13 @@ void Menu::showProductTypeMenu() const
     std::cout << "Elige tipo: ";
 }
 
-void Menu::processOption(int option)
+bool Menu::processOption(int option)
 {
     if (!gestor)
-        return;
+        return true;
     if (!currentUser) {
         std::cout << "No hay usuario autenticado.\n";
-        return;
+        return true;
     }
 
     bool isSuper = currentUser->isSuperAdminRole();
@@ -68,32 +68,78 @@ void Menu::processOption(int option)
 
     // Permission checks per option
     if (option == 1 || option == 2) {
-        if (!(isSuper || isAdmin || isWarehouse)) { std::cout << "Permisos insuficientes para esta accion.\n"; return; }
+        if (!(isSuper || isAdmin || isWarehouse)) { std::cout << "Permisos insuficientes para esta accion.\n"; return true; }
     }
     if (option == 3) {
-        if (!(isSuper || isAdmin || isSeller || isWarehouse)) { std::cout << "Permisos insuficientes para esta accion.\n"; return; }
+        if (!(isSuper || isAdmin || isSeller || isWarehouse)) { std::cout << "Permisos insuficientes para esta accion.\n"; return true; }
     }
     if (option == 4) {
-        if (!(isSuper || isAdmin || isSeller || isWarehouse)) { std::cout << "Permisos insuficientes para esta accion.\n"; return; }
+        if (!(isSuper || isAdmin || isSeller || isWarehouse)) { std::cout << "Permisos insuficientes para esta accion.\n"; return true; }
     }
     if (option == 5) {
-        if (!(isSuper || isAdmin || isSeller || isWarehouse)) { std::cout << "Permisos insuficientes para esta accion.\n"; return; }
+        if (!(isSuper || isAdmin || isSeller || isWarehouse)) { std::cout << "Permisos insuficientes para esta accion.\n"; return true; }
     }
     if (option == 6) {
-        if (!(isSuper || isAdmin)) { std::cout << "Permisos insuficientes para esta accion.\n"; return; }
+        if (!(isSuper || isAdmin)) { std::cout << "Permisos insuficientes para esta accion.\n"; return true; }
     }
     if (option == 7) {
-        if (!(isSuper || isAdmin || isWarehouse)) { std::cout << "Permisos insuficientes para esta accion.\n"; return; }
+        if (!(isSuper || isAdmin || isWarehouse)) { std::cout << "Permisos insuficientes para esta accion.\n"; return true; }
     }
     if (option == 11) {
-        if (!(isSuper || isAdmin || isSeller)) { std::cout << "Permisos insuficientes para esta accion.\n"; return; }
+        if (!(isSuper || isAdmin || isSeller)) { std::cout << "Permisos insuficientes para esta accion.\n"; return true; }
     }
+    // Handle logout and user management options here to keep logic centralized
+    if (option == 8) {
+        // logout
+        currentUser = nullptr;
+        std::cout << "Cerrando sesion.\n";
+        waitForEnter();
+        return false; // signal run() to exit menu loop
+    }
+
+    if (option == 9) {
+        // Gestion de usuarios: list, add, delete
+        if (!(currentUser->isAdminRole() || currentUser->isSuperAdminRole())) {
+            std::cout << "Permisos insuficientes para gestionar usuarios.\n";
+            return true;
+        }
+        std::cout << "Gestion de usuarios: 1=Listar, 2=Agregar, 3=Eliminar: ";
+        int choice; if (!(std::cin >> choice)) { clearInput(); return true; } clearInput();
+        if (choice == 1) {
+            for (const auto &usr : userManager->allUsers()) {
+                std::cout << "- " << usr.getName() << " (code=" << usr.getCode() << ")\n";
+            }
+        } else if (choice == 2) {
+            User newu;
+            int code = newu.addNewUser(*currentUser);
+            if (code != 0) userManager->addUser(newu);
+        } else if (choice == 3) {
+            std::cout << "Ingrese nombre de usuario a eliminar: ";
+            std::string n; std::getline(std::cin, n);
+            User* target = userManager->findByName(n);
+            if (!target) { std::cout << "Usuario no encontrado.\n"; return true; }
+            target->deleteUser(*currentUser);
+        }
+        return true;
+    }
+
+    if (option == 10) {
+        if (!currentUser->isSuperAdminRole()) { std::cout << "Permisos insuficientes.\n"; return true; }
+        std::cout << "Ingrese nombre de usuario para asignar rol Admin: ";
+        std::string n; std::getline(std::cin, n);
+        User* target = userManager->findByName(n);
+        if (!target) { std::cout << "Usuario no encontrado.\n"; return true; }
+        target->setAdmin(true);
+        std::cout << "Rol Admin asignado a " << target->getName() << "\n";
+        return true;
+    }
+
     if (option == 1)
     {
         showProductTypeMenu();
         int t = 0;
         if (!(std::cin >> t))
-            return;
+            return true;
         clearInput();
         
         std::string name, description;
@@ -130,7 +176,7 @@ void Menu::processOption(int option)
             gestor->addProduct(b);
             std::cout << "Libro agregado.\n";
         }
-        else if(t == 3)
+        else if (t == 3)
         {            
             Product *p = new Product(0, stock, price, name, description);
             gestor->addProduct(p);
@@ -144,7 +190,7 @@ void Menu::processOption(int option)
         std::cout << "Ingrese ID del producto a eliminar: ";
         int id;
         if (!(std::cin >> id))
-            return;
+            return true;
         clearInput();
         if (gestor->removeProduct(id))
             std::cout << "Eliminado.\n";
@@ -156,7 +202,7 @@ void Menu::processOption(int option)
         std::cout << "Ingrese ID del producto a buscar: ";
         int id;
         if (!(std::cin >> id))
-            return;
+            return true;
         clearInput();
         Product *p = gestor->findProduct(id);
         if (p)
@@ -173,7 +219,7 @@ void Menu::processOption(int option)
         showProductTypeMenu();
         int t = 0;
         if (!(std::cin >> t))
-            return;
+            return true;
         clearInput();
         if (t == 1)
             gestor->showByType("Electronic");
@@ -199,6 +245,7 @@ void Menu::processOption(int option)
     }
 
     std::cout << std::endl;
+    return true;
 }
 
 void Menu::run()
@@ -242,51 +289,9 @@ void Menu::run()
         if (!(std::cin >> opt))
             break;
         clearInput();
-        if (opt == 8) {
-            // logout
-            currentUser = nullptr;
-            std::cout << "Cerrando sesion.\n";
-            waitForEnter();
-            break;
-        }
-        // User management options
-        if (opt == 9) {
-            // Gestion de usuarios: list, add, delete
-            if (!(currentUser->isAdminRole() || currentUser->isSuperAdminRole())) {
-                std::cout << "Permisos insuficientes para gestionar usuarios.\n";
-                continue;
-            }
-            std::cout << "Gestion de usuarios: 1=Listar, 2=Agregar, 3=Eliminar: ";
-            int choice; if (!(std::cin >> choice)) { clearInput(); continue; } clearInput();
-            if (choice == 1) {
-                for (const auto &usr : userManager->allUsers()) {
-                    std::cout << "- " << usr.getName() << " (code=" << usr.getCode() << ")\n";
-                }
-            } else if (choice == 2) {
-                User newu;
-                int code = newu.addNewUser(*currentUser);
-                if (code != 0) userManager->addUser(newu);
-            } else if (choice == 3) {
-                std::cout << "Ingrese nombre de usuario a eliminar: ";
-                std::string n; std::getline(std::cin, n);
-                User* target = userManager->findByName(n);
-                if (!target) { std::cout << "Usuario no encontrado.\n"; continue; }
-                target->deleteUser(*currentUser);
-            }
-            continue;
-        }
-        if (opt == 10) {
-            if (!currentUser->isSuperAdminRole()) { std::cout << "Permisos insuficientes.\n"; continue; }
-            std::cout << "Ingrese nombre de usuario para asignar rol Admin: ";
-            std::string n; std::getline(std::cin, n);
-            User* target = userManager->findByName(n);
-            if (!target) { std::cout << "Usuario no encontrado.\n"; continue; }
-            target->setAdmin(true);
-            std::cout << "Rol Admin asignado a " << target->getName() << "\n";
-            continue;
-        }
 
-        processOption(opt);
+        if (!processOption(opt))
+            break;
         // after action, allow user to see the output before clearing
         std::cout << std::endl;
         waitForEnter();
