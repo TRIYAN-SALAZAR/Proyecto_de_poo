@@ -144,15 +144,36 @@ bool Menu::processOption(int option)
             // Prevent deleting currently logged-in user
             if (target->getName() == currentUser->getName()) { std::cout << "No puede eliminar al usuario con sesion iniciada.\n"; return true; }
 
-            // Count admins (Admin or SuperAdmin) to avoid leaving system without admins
-            int adminCount = 0;
+            // Count superadmins and admins separately to apply stricter rules
+            int superAdminCount = 0;
+            int adminCount = 0; // regular admin (not counting superadmins)
             for (const auto &u : userManager->allUsers()) {
-                if (u.isAdminRole() || u.isSuperAdminRole()) ++adminCount;
+                if (u.isSuperAdminRole()) ++superAdminCount;
+                else if (u.isAdminRole()) ++adminCount;
             }
-            bool targetIsAdmin = target->isAdminRole() || target->isSuperAdminRole();
-            if (targetIsAdmin && adminCount <= 1) {
-                std::cout << "Operacion denegada: no se puede eliminar al ultimo usuario con rol de Admin/SuperAdmin.\n";
-                return true;
+
+            // If target is SuperAdmin: only a SuperAdmin can delete, and can't delete the last SuperAdmin
+            if (target->isSuperAdminRole()) {
+                if (!currentUser->isSuperAdminRole()) {
+                    std::cout << "Operacion denegada: solo un SuperAdmin puede eliminar a otro SuperAdmin.\n";
+                    return true;
+                }
+                if (superAdminCount <= 1) {
+                    std::cout << "Operacion denegada: no se puede eliminar al ultimo SuperAdmin.\n";
+                    return true;
+                }
+            }
+
+            // If target is an Admin (but not SuperAdmin): only SuperAdmin can delete Admins and avoid deleting last admin
+            if (target->isAdminRole() && !target->isSuperAdminRole()) {
+                if (!currentUser->isSuperAdminRole()) {
+                    std::cout << "Operacion denegada: solo un SuperAdmin puede eliminar a un Admin.\n";
+                    return true;
+                }
+                if (adminCount <= 1) {
+                    std::cout << "Operacion denegada: no se puede eliminar al ultimo usuario con rol Admin.\n";
+                    return true;
+                }
             }
 
             std::cout << "Confirma eliminar usuario '" << target->getName() << "'? (y/n): ";
