@@ -179,6 +179,11 @@ void Menu::processOption(int option)
             gestor->showByType("Electronic");
         else if (t == 2)
             gestor->showByType("Book");
+        else if(t == 3)
+            gestor->showByType("Product");
+        else
+            std::cout << "Opcion no valida" << std::endl;
+
     }
     else if (option == 6)
     {

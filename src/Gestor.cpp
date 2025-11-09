@@ -172,6 +172,35 @@ void Gestor::showByType(const std::string &tipo) const
         return;
     }
 
+    if (wantGeneric)
+    {
+        const int wId = 6; const int wNombre = 22; const int wPrecio = 10; const int wStock = 8; const int wDesc = 36;
+        std::cout << std::endl;
+        std::cout << std::left << std::setw(wId) << "ID"
+                  << std::setw(wNombre) << "Nombre"
+                  << std::setw(wPrecio) << "Precio"
+                  << std::setw(wStock) << "Stock"
+                  << std::setw(wDesc) << "Descripcion" << "\n";
+        std::cout << std::string(wId + wNombre + wPrecio + wStock + wDesc, '-') << "\n";
+
+        for (const Product *p : list)
+        {
+            if (!p) continue;
+            // skip Electronics and Books
+            if (dynamic_cast<const Electronic*>(p)) continue;
+            if (dynamic_cast<const Book*>(p)) continue;
+            std::ostringstream oss; oss << std::fixed << std::setprecision(2) << p->getPrice();
+            std::cout << std::left << std::setw(wId) << p->getId()
+                      << std::setw(wNombre) << truncate(p->getName(), wNombre - 1)
+                      << std::setw(wPrecio) << oss.str()
+                      << std::setw(wStock) << p->getStock()
+                      << std::setw(wDesc) << truncate(p->getDescription(), wDesc - 1)
+                      << "\n";
+        }
+        std::cout << std::endl;
+        return;
+    }
+
     std::cout << std::endl;
 }
 
