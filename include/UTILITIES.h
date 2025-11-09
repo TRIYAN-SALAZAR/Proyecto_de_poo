@@ -10,6 +10,7 @@
 
 #ifdef _WIN32
 #include <conio.h>
+#include <windows.h>
 #else
 #include <termios.h>
 #include <unistd.h>
@@ -55,6 +56,55 @@ inline Key readKey(char &outChar)
     // caller can fall back to numeric input. We'll implement POSIX later.
     outChar = '\0';
     return Key::Unknown;
+#endif
+}
+
+// Detecta si la consola Windows soporta ANSI (VT sequences) y trata de
+// habilitarlo. Devuelve true si las secuencias ANSI pueden usarse.
+inline bool supportsAnsi()
+{
+#ifdef _WIN32
+    static int cached = -1;
+    if (cached != -1) return cached == 1;
+    HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+    if (hOut == INVALID_HANDLE_VALUE) { cached = 0; return false; }
+    DWORD mode = 0;
+    if (!GetConsoleMode(hOut, &mode)) { cached = 0; return false; }
+    // Try to enable ENABLE_VIRTUAL_TERMINAL_PROCESSING
+    DWORD newMode = mode | 0x0004; // ENABLE_VIRTUAL_TERMINAL_PROCESSING
+    if (SetConsoleMode(hOut, newMode)) { cached = 1; return true; }
+    // Could not enable; keep original mode and return false
+    cached = 0;
+    return false;
+#else
+    return true; // POSIX terminals normally support ANSI
+#endif
+}
+
+// Imprime una línea resaltada. Si ANSI está disponible usa la secuencia
+// de inversión; en cmd.exe (sin ANSI) usa SetConsoleTextAttribute para
+// invertir atributos visuales y luego restaura el estado.
+inline void printHighlightedLine(const std::string &line)
+{
+#ifdef _WIN32
+    if (supportsAnsi()) {
+        std::cout << "\x1b[7m" << line << "\x1b[0m" << std::endl;
+        return;
+    }
+    HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+    if (hOut == INVALID_HANDLE_VALUE) { std::cout << line << std::endl; return; }
+    CONSOLE_SCREEN_BUFFER_INFO csbi;
+    if (!GetConsoleScreenBufferInfo(hOut, &csbi)) { std::cout << line << std::endl; return; }
+    WORD orig = csbi.wAttributes;
+    // Swap foreground and background nibbles to approximate inverse
+    WORD swapped = (WORD)(((orig & 0x0F) << 4) | ((orig & 0xF0) >> 4));
+    // Preserve intensity bits where possible
+    if (orig & 0x08) swapped |= 0x80; // preserve background intensity to a best-effort
+    SetConsoleTextAttribute(hOut, swapped);
+    std::cout << line << std::endl;
+    SetConsoleTextAttribute(hOut, orig);
+#else
+    std::cout << "\x1b[7m" << line << "\x1b[0m" << std::endl;
 #endif
 }
 
