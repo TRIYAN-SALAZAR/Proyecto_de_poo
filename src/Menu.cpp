@@ -12,8 +12,27 @@ Menu::Menu(Gestor *gestor, UserManager* userManager, SalesManager* salesManager)
 {
 }
 
+void Menu::printUserBanner() const
+{
+    if (!currentUser) return;
+    std::ostringstream oss;
+    oss << "User: " << currentUser->getName()
+        << " | Code: " << currentUser->getCode()
+        << " | Role: ";
+    if (currentUser->isSuperAdminRole()) oss << "SuperAdmin";
+    else if (currentUser->isAdminRole()) oss << "Admin";
+    else if (currentUser->isSellerRole()) oss << "Seller";
+    else if (currentUser->isWarehouseWorkerRole()) oss << "Warehouse";
+    else oss << "None";
+    std::string info = oss.str();
+    const int width = 80;
+    if ((int)info.size() < width) std::cout << std::setw(width) << info << "\n";
+    else std::cout << info << "\n";
+}
+
 void Menu::showMainMenu()
 {
+    printUserBanner();
     std::cout << std::endl;
     std::cout << "--- Menu Principal ---\n";
     // Show menu options depending on current user's roles
@@ -44,6 +63,7 @@ void Menu::showMainMenu()
 
 void Menu::showProductTypeMenu() const
 {
+    printUserBanner();
     std::cout << std::endl;
     std::cout << "-- Tipos de producto --\n";
     std::cout << "1. Electronico\n";
@@ -99,6 +119,7 @@ bool Menu::processOption(int option)
 
     if (option == 9) {
         // Gestion de usuarios: list, add, delete
+        printUserBanner();
         if (!(currentUser->isAdminRole() || currentUser->isSuperAdminRole())) {
             std::cout << "Permisos insuficientes para gestionar usuarios.\n";
             return true;
@@ -198,6 +219,7 @@ bool Menu::processOption(int option)
     }
     else if (option == 2)
     {
+        printUserBanner();
         std::cout << "Ingrese ID del producto a eliminar: ";
         int id;
         if (!(std::cin >> id))
@@ -210,6 +232,7 @@ bool Menu::processOption(int option)
     }
     else if (option == 3)
     {
+        printUserBanner();
         std::cout << "Ingrese ID del producto a buscar: ";
         int id;
         if (!(std::cin >> id))
@@ -223,6 +246,7 @@ bool Menu::processOption(int option)
     }
     else if (option == 4)
     {
+        printUserBanner();
         gestor->showAll();
     }
     else if (option == 5)
@@ -320,6 +344,7 @@ static std::string readLineAllowEmpty(const std::string &prompt)
 void Menu::modifyProduct()
 {
     if (!gestor) return;
+    printUserBanner();
     std::cout << "Ingrese ID del producto a modificar: ";
     int id;
     if (!(std::cin >> id)) { clearInput(); return; }
@@ -384,6 +409,7 @@ void Menu::operatorsMenu()
     if (!gestor) return;
     while (true)
     {
+        printUserBanner();
         showOperatorsMenu();
         int op = 0;
         if (!(std::cin >> op)) return;
@@ -439,6 +465,7 @@ void Menu::salesMenu()
 {
     while (true) {
         clearScreen();
+        printUserBanner();
         std::cout << "-- Modulo Ventas --\n";
         std::cout << "1. Nueva venta\n";
         std::cout << "2. Buscar venta\n";

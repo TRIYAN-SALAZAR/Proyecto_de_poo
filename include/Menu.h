@@ -14,6 +14,7 @@ class Menu
         UserManager* userManager;
         User* currentUser;
         SalesManager* salesManager;
+        void printUserBanner() const;
     
     public:
     Menu(Gestor* gestor, UserManager* userManager, SalesManager* salesManager);
