@@ -107,7 +107,7 @@ int Menu::interactiveSelectMainMenu() {
     options.push_back({8, "Salir"});
 
     std::vector<std::string> labels;
-    for (auto &p : options) labels.push_back(std::to_string(p.first) + ". " + p.second);
+    for (auto &p : options) labels.push_back(std::string("* ") + p.second);
 
     int sel = selectFromList(labels, "Menu Principal", 0, true);
     if (sel == -2) return -2; // signal to caller to fall back to numeric input
@@ -131,17 +131,17 @@ void Menu::showMainMenu()
     bool isSeller = currentUser->isSellerRole();
     bool isWarehouse = currentUser->isWarehouseWorkerRole();
 
-    if (isSuper || isAdmin || isWarehouse) std::cout << "1. Alta de producto\n";
-    if (isSuper || isAdmin || isWarehouse) std::cout << "2. Baja de producto\n";
-    if (isSuper || isAdmin || isSeller || isWarehouse) std::cout << "3. Busqueda de producto\n";
-    if (isSuper || isAdmin || isSeller || isWarehouse) std::cout << "4. Mostrar todos los productos\n";
-    if (isSuper || isAdmin || isSeller || isWarehouse) std::cout << "5. Mostrar productos por tipo\n";
-    if (isSuper || isAdmin) std::cout << "6. Operadores\n";
-    if (isSuper || isAdmin || isWarehouse) std::cout << "7. Modificar producto\n";
-    if (isSuper || isAdmin) std::cout << "9. Gestion de usuarios\n";
-    if (isSuper) std::cout << "10. Asignar rol de Admin\n";
-    if (isSuper || isAdmin || isSeller) std::cout << "11. Ventas\n";
-    std::cout << "8. Salir\n";
+    if (isSuper || isAdmin || isWarehouse) std::cout << "* Alta de producto\n";
+    if (isSuper || isAdmin || isWarehouse) std::cout << "* Baja de producto\n";
+    if (isSuper || isAdmin || isSeller || isWarehouse) std::cout << "* Busqueda de producto\n";
+    if (isSuper || isAdmin || isSeller || isWarehouse) std::cout << "* Mostrar todos los productos\n";
+    if (isSuper || isAdmin || isSeller || isWarehouse) std::cout << "* Mostrar productos por tipo\n";
+    if (isSuper || isAdmin) std::cout << "* Operadores\n";
+    if (isSuper || isAdmin || isWarehouse) std::cout << "* Modificar producto\n";
+    if (isSuper || isAdmin) std::cout << "* Gestion de usuarios\n";
+    if (isSuper) std::cout << "* Asignar rol de Admin\n";
+    if (isSuper || isAdmin || isSeller) std::cout << "* Ventas\n";
+    std::cout << "* Salir\n";
     std::cout << "Elige una opcion: ";
     std::cout << std::endl;
 }
