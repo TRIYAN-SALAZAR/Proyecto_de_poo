@@ -242,10 +242,3 @@ plantuml diagram.puml
 o usar un renderizador online (PlantUML server, www.plantuml.com/plantuml).
 
 ---
-
-Si quieres, puedo:
-- Generar una imagen PNG del diagrama UML y añadirla al repo.
-- Extraer automáticamente las firmas de las clases desde los `.h` para un diagrama más exacto.
-- Crear un README corto con pasos rápidos para contribución.
-
-Dime qué prefieres y lo hago.
