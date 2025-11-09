@@ -63,6 +63,7 @@ void Menu::showMainMenu()
 
 void Menu::showProductTypeMenu() const
 {
+    clearScreen();
     printUserBanner();
     std::cout << std::endl;
     std::cout << "-- Tipos de producto --\n";
@@ -119,6 +120,7 @@ bool Menu::processOption(int option)
 
     if (option == 9) {
         // Gestion de usuarios: list, add, delete
+        clearScreen();
         printUserBanner();
         if (!(currentUser->isAdminRole() || currentUser->isSuperAdminRole())) {
             std::cout << "Permisos insuficientes para gestionar usuarios.\n";
@@ -157,6 +159,8 @@ bool Menu::processOption(int option)
 
     if (option == 10) {
         if (!currentUser->isSuperAdminRole()) { std::cout << "Permisos insuficientes.\n"; return true; }
+        clearScreen();
+        printUserBanner();
         std::cout << "Ingrese nombre de usuario para asignar rol Admin: ";
         std::string n; std::getline(std::cin, n);
         User* target = userManager->findByName(n);
@@ -168,6 +172,7 @@ bool Menu::processOption(int option)
 
     if (option == 1)
     {
+        clearScreen();
         showProductTypeMenu();
         int t = 0;
         if (!(std::cin >> t))
@@ -219,6 +224,7 @@ bool Menu::processOption(int option)
     }
     else if (option == 2)
     {
+        clearScreen();
         printUserBanner();
         std::cout << "Ingrese ID del producto a eliminar: ";
         int id;
@@ -232,6 +238,7 @@ bool Menu::processOption(int option)
     }
     else if (option == 3)
     {
+        clearScreen();
         printUserBanner();
         std::cout << "Ingrese ID del producto a buscar: ";
         int id;
@@ -246,11 +253,13 @@ bool Menu::processOption(int option)
     }
     else if (option == 4)
     {
+        clearScreen();
         printUserBanner();
         gestor->showAll();
     }
     else if (option == 5)
     {
+        clearScreen();
         showProductTypeMenu();
         int t = 0;
         if (!(std::cin >> t))
@@ -268,14 +277,17 @@ bool Menu::processOption(int option)
     }
     else if (option == 6)
     {
+        // operatorsMenu will clear per-iteration; call it directly
         operatorsMenu();
     }
     else if (option == 11)
     {
+        // salesMenu already clears each loop iteration
         salesMenu();
     }
     else if (option == 7)
     {
+        clearScreen();
         modifyProduct();
     }
 
@@ -344,6 +356,7 @@ static std::string readLineAllowEmpty(const std::string &prompt)
 void Menu::modifyProduct()
 {
     if (!gestor) return;
+    clearScreen();
     printUserBanner();
     std::cout << "Ingrese ID del producto a modificar: ";
     int id;
@@ -409,6 +422,7 @@ void Menu::operatorsMenu()
     if (!gestor) return;
     while (true)
     {
+        clearScreen();
         printUserBanner();
         showOperatorsMenu();
         int op = 0;
