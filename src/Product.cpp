@@ -3,6 +3,7 @@
 #include <iomanip>
 #include "Product.h"
 #include "UTILITIES.h"
+#include "TableFormat.h"
 
 Product::Product()
     : id(0), stock(0), price(0.0f), name(""), description("")
@@ -100,19 +101,20 @@ void Product::printRow(std::ostream &out) const
         return s.substr(0, w - 3) + "...";
     };
 
-    const int wId = 6;
-    const int wTipo = 14;
-    const int wNombre = 22;
-    const int wPrecio = 10;
-    const int wStock = 8;
-    const int wDesc = 36;
+    using namespace TableFormat;
+    const int wId = ProductWidths::Id;
+    const int wTipo = ProductWidths::Tipo;
+    const int wNombre = ProductWidths::Nombre;
+    const int wPrecio = ProductWidths::Precio;
+    const int wStock = ProductWidths::Stock;
+    const int wDesc = ProductWidths::Desc;
 
-    std::ostringstream oss; oss << std::fixed << std::setprecision(2) << getPrice();
     out << std::left << std::setw(wId) << getId()
         << std::setw(wTipo) << "Producto"
         << std::setw(wNombre) << truncate(getName(), wNombre - 1)
-        << std::setw(wPrecio) << oss.str()
+        << std::setw(wPrecio) << TableFormat::formatPrice(getPrice())
         << std::setw(wStock) << getStock()
-        << std::setw(wDesc) << truncate(getDescription(), wDesc - 1);
+        << std::setw(wDesc) << truncate(getDescription(), wDesc - 1)
+        << "\n";
 }
 

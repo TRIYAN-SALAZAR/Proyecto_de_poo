@@ -4,6 +4,7 @@
 #include "Electronic.h"
 #include "Book.h"
 #include "UTILITIES.h"
+#include "TableFormat.h"
 #include <iomanip>
 #include <sstream>
 
@@ -26,7 +27,7 @@ void Menu::printUserBanner() const
     else oss << "None";
     std::string info = oss.str();
     const int width = 80;
-    if ((int)info.size() < width) std::cout << std::setw(width) << info << "\n";
+    if ((int)info.size() < width) std::cout << std::left << std::setw(width) << info << "\n";
     else std::cout << info << "\n";
 }
 
@@ -224,11 +225,12 @@ bool Menu::processOption(int option)
         }
         if (choice == 1) {
             // Print users in a table: ID | Usuario | Rol
-            const int wId = 6, wName = 24, wRole = 16;
+            using namespace TableFormat;
+            const int wId = UserWidths::Id, wName = UserWidths::Name, wRole = UserWidths::Role;
             std::cout << std::left << std::setw(wId) << "ID"
                       << std::setw(wName) << "Usuario"
                       << std::setw(wRole) << "Rol" << "\n";
-            std::cout << std::string(wId + wName + wRole, '-') << "\n";
+            TableFormat::printSeparator(std::cout, {wId, wName, wRole});
             for (const auto &usr : userManager->allUsers()) {
                 std::string role = "None";
                 if (usr.isSuperAdminRole()) role = "SuperAdmin";
@@ -680,7 +682,7 @@ void Menu::operatorsMenu()
         {
             Product combined = (*p1) + (*p2);
             std::cout << "Resultado de la suma:\n";
-            std::cout << combined << std::endl;
+            std::cout << combined;
             waitForEnter();
         }
     }
@@ -741,8 +743,8 @@ void Menu::salesMenu()
             if (salesManager) saleId = salesManager->addSale(s);
 
             // print as table
-            const int wId = 6, wUcode = 10, wUname = 16, wPtype = 12, wPname = 22, wUnits = 8, wTotal = 12;
-            std::ostringstream oss; oss << std::fixed << std::setprecision(2) << s.totalPrice;
+            using namespace TableFormat;
+            const int wId = SalesWidths::Id, wUcode = SalesWidths::UCode, wUname = SalesWidths::UName, wPtype = SalesWidths::PType, wPname = SalesWidths::PName, wUnits = SalesWidths::Units, wTotal = SalesWidths::Total;
             std::cout << std::left << std::setw(wId) << "ID"
                       << std::setw(wUcode) << "UCode"
                       << std::setw(wUname) << "Usuario"
@@ -750,14 +752,14 @@ void Menu::salesMenu()
                       << std::setw(wPname) << "Producto"
                       << std::setw(wUnits) << "Unids"
                       << std::setw(wTotal) << "Total" << "\n";
-            std::cout << std::string(wId+wUcode+wUname+wPtype+wPname+wUnits+wTotal, '-') << "\n";
+            TableFormat::printSeparator(std::cout, {wId,wUcode,wUname,wPtype,wPname,wUnits,wTotal});
             std::cout << std::left << std::setw(wId) << saleId
                       << std::setw(wUcode) << s.userCode
                       << std::setw(wUname) << s.userName
                       << std::setw(wPtype) << s.productType
                       << std::setw(wPname) << s.productName
                       << std::setw(wUnits) << s.units
-                      << std::setw(wTotal) << oss.str() << "\n";
+                      << std::setw(wTotal) << TableFormat::formatPrice(s.totalPrice) << "\n";
             std::cout << "Venta registrada. ID venta: " << saleId << "\n";
             // details already printed in table
         } else if (op == 2) {
@@ -773,7 +775,8 @@ void Menu::salesMenu()
                 if (list.empty()) {
                     std::cout << "No se encontraron ventas para su usuario.\n";
                 } else {
-                    const int wId = 6, wUcode = 10, wUname = 16, wPtype = 12, wPname = 22, wUnits = 8, wTotal = 12;
+                    using namespace TableFormat;
+                    const int wId = SalesWidths::Id, wUcode = SalesWidths::UCode, wUname = SalesWidths::UName, wPtype = SalesWidths::PType, wPname = SalesWidths::PName, wUnits = SalesWidths::Units, wTotal = SalesWidths::Total;
                     std::cout << std::left << std::setw(wId) << "ID"
                               << std::setw(wUcode) << "UCode"
                               << std::setw(wUname) << "Usuario"
@@ -781,16 +784,15 @@ void Menu::salesMenu()
                               << std::setw(wPname) << "Producto"
                               << std::setw(wUnits) << "Unids"
                               << std::setw(wTotal) << "Total" << "\n";
-                    std::cout << std::string(wId+wUcode+wUname+wPtype+wPname+wUnits+wTotal, '-') << "\n";
+                    TableFormat::printSeparator(std::cout, {wId,wUcode,wUname,wPtype,wPname,wUnits,wTotal});
                     for (const auto &fs : list) {
-                        std::ostringstream oss; oss << std::fixed << std::setprecision(2) << fs.totalPrice;
                         std::cout << std::left << std::setw(wId) << fs.saleId
                                   << std::setw(wUcode) << fs.userCode
                                   << std::setw(wUname) << fs.userName
                                   << std::setw(wPtype) << fs.productType
                                   << std::setw(wPname) << fs.productName
                                   << std::setw(wUnits) << fs.units
-                                  << std::setw(wTotal) << oss.str() << "\n";
+                                  << std::setw(wTotal) << TableFormat::formatPrice(fs.totalPrice) << "\n";
                     }
                 }
             } else if (isAdmin || isSuper) {
@@ -860,8 +862,8 @@ void Menu::salesMenu()
                     Sale* found = salesManager ? salesManager->findById(sid) : nullptr;
                     if (!found) { std::cout << "Venta no encontrada.\n"; }
                     else {
-                        const int wId = 6, wUcode = 10, wUname = 16, wPtype = 12, wPname = 22, wUnits = 8, wTotal = 12;
-                        std::ostringstream oss; oss << std::fixed << std::setprecision(2) << found->totalPrice;
+                        using namespace TableFormat;
+                        const int wId = SalesWidths::Id, wUcode = SalesWidths::UCode, wUname = SalesWidths::UName, wPtype = SalesWidths::PType, wPname = SalesWidths::PName, wUnits = SalesWidths::Units, wTotal = SalesWidths::Total;
                         std::cout << std::left << std::setw(wId) << "ID"
                                   << std::setw(wUcode) << "UCode"
                                   << std::setw(wUname) << "Usuario"
@@ -869,14 +871,14 @@ void Menu::salesMenu()
                                   << std::setw(wPname) << "Producto"
                                   << std::setw(wUnits) << "Unids"
                                   << std::setw(wTotal) << "Total" << "\n";
-                        std::cout << std::string(wId+wUcode+wUname+wPtype+wPname+wUnits+wTotal, '-') << "\n";
+                        TableFormat::printSeparator(std::cout, {wId,wUcode,wUname,wPtype,wPname,wUnits,wTotal});
                         std::cout << std::left << std::setw(wId) << found->saleId
                                   << std::setw(wUcode) << found->userCode
                                   << std::setw(wUname) << found->userName
                                   << std::setw(wPtype) << found->productType
                                   << std::setw(wPname) << found->productName
                                   << std::setw(wUnits) << found->units
-                                  << std::setw(wTotal) << oss.str() << "\n";
+                                  << std::setw(wTotal) << TableFormat::formatPrice(found->totalPrice) << "\n";
                     }
                 } else {
                     std::cout << "Opcion no valida.\n";
