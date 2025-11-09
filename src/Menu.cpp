@@ -197,11 +197,14 @@ void Menu::run()
     while (true) {
         clearScreen();
         std::string uname, pwd;
+        
         std::cout << "Usuario (o 'exit' para salir): ";
         std::getline(std::cin, uname);
         if (uname == "exit") return;
+        
         std::cout << "Password: ";
-        std::getline(std::cin, pwd);
+        pwd = readPassword();
+
         User* u = userManager->authenticate(uname, pwd);
         if (!u) {
             std::cout << "Credenciales invalidas. Intente otra vez.\n";
@@ -209,6 +212,7 @@ void Menu::run()
             continue;
         }
         currentUser = u;
+        
         std::cout << "Bienvenido, " << currentUser->getName() << "\n";
         waitForEnter();
         break;
