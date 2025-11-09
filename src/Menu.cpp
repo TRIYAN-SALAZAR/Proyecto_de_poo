@@ -436,17 +436,29 @@ void Menu::salesMenu()
             std::cout << "Producto: " << prod->getName() << "\n";
             std::cout << "Ingrese unidades vendidas: ";
             int units; if (!(std::cin >> units)) { clearInput(); std::cout << "Unidades invalidas.\n"; continue; } clearInput();
-            if (units <= 0) { std::cout << "La cantidad debe ser mayor que 0.\n"; continue; }
-            if (units > prod->getStock()) { std::cout << "Stock insuficiente. Stock actual: " << prod->getStock() << "\n"; continue; }
+            if (units <= 0) { std::cout << "La cantidad debe ser mayor que 0.\n"; waitForEnter(); continue; }
+            if (units > prod->getStock()) { std::cout << "Stock insuficiente. Stock actual: " << prod->getStock() << "\n"; waitForEnter(); continue; }
             float total = units * prod->getPrice();
             std::string ptype = "Producto";
             if (dynamic_cast<Electronic*>(prod)) ptype = "Electronic";
             else if (dynamic_cast<Book*>(prod)) ptype = "Book";
             Sale s(0, currentUser->getCode(), currentUser->getName(), ptype, prod->getName(), units, total);
+
+            // show summary and ask for confirmation
+            std::cout << "Resumen de venta:\n";
+            std::cout << "Usuario: " << s.userName << " (code=" << s.userCode << ")\n";
+            std::cout << "Producto: [" << s.productType << "] " << s.productName << " x" << s.units << " => Total: " << std::fixed << std::setprecision(2) << s.totalPrice << "\n";
+            std::cout << "Confirmar venta? (y/n): ";
+            char confirm = 'n';
+            if (!(std::cin >> confirm)) { std::cin.clear(); clearInput(); std::cout << "Entrada invalida. Venta cancelada.\n"; waitForEnter(); continue; }
+            clearInput();
+            if (!(confirm == 'y' || confirm == 'Y')) { std::cout << "Venta cancelada.\n"; waitForEnter(); continue; }
+
+            // proceed to register sale and decrement stock
             int saleId = 0;
-            if (salesManager) saleId = salesManager->addSale(s);
             // decrement stock
             prod->setStock(prod->getStock() - units);
+            if (salesManager) saleId = salesManager->addSale(s);
 
             // print as table
             const int wId = 6, wUcode = 10, wUname = 16, wPtype = 12, wPname = 22, wUnits = 8, wTotal = 12;
