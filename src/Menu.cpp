@@ -48,8 +48,8 @@ int Menu::selectFromList(const std::vector<std::string> &items, const std::strin
 
         for (int i = 0; i < (int)items.size(); ++i) {
             if (i == selected) {
-                // Inverse video for highlight
-                std::cout << "\x1b[7m" << "  " << items[i] << "\x1b[0m" << "\n";
+                // Use helper that chooses ANSI or WinAPI based on console
+                printHighlightedLine(std::string("  ") + items[i]);
             } else {
                 std::cout << "   " << items[i] << "\n";
             }
