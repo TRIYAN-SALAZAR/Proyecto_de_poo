@@ -10,7 +10,7 @@
 int main()
 {
     Gestor gestor;
-
+    
     Electronic *e1 = new Electronic(0, "Smartphone", 299.99f, "Multifunctional phone", 15, "Acme", "X100", 24, "Specs...");
     Electronic *e2 = new Electronic(0, "Laptop", 899.50f, "Lightweight laptop", 8, "Acme", "BookPro", 12, "Specs...");
     Electronic *e3 = new Electronic(0, "Wireless Headphones", 59.99f, "Noise-cancelling", 25, "SoundCo", "WH-200", 6, "Specs...");

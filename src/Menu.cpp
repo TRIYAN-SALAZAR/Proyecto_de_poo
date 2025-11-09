@@ -129,8 +129,22 @@ bool Menu::processOption(int option)
         std::cout << "Gestion de usuarios: 1=Listar, 2=Agregar, 3=Eliminar: ";
         int choice; if (!(std::cin >> choice)) { clearInput(); return true; } clearInput();
         if (choice == 1) {
+            // Print users in a table: ID | Usuario | Rol
+            const int wId = 6, wName = 24, wRole = 16;
+            std::cout << std::left << std::setw(wId) << "ID"
+                      << std::setw(wName) << "Usuario"
+                      << std::setw(wRole) << "Rol" << "\n";
+            std::cout << std::string(wId + wName + wRole, '-') << "\n";
             for (const auto &usr : userManager->allUsers()) {
-                std::cout << "- " << usr.getName() << " (code=" << usr.getCode() << ")\n";
+                std::string role = "None";
+                if (usr.isSuperAdminRole()) role = "SuperAdmin";
+                else if (usr.isAdminRole()) role = "Admin";
+                else if (usr.isSellerRole()) role = "Seller";
+                else if (usr.isWarehouseWorkerRole()) role = "Warehouse";
+
+                std::cout << std::left << std::setw(wId) << usr.getCode()
+                          << std::setw(wName) << usr.getName()
+                          << std::setw(wRole) << role << "\n";
             }
         } else if (choice == 2) {
             User newu;
