@@ -135,7 +135,14 @@ bool Menu::processOption(int option)
         } else if (choice == 2) {
             User newu;
             int code = newu.addNewUser(*currentUser);
-            if (code != 0) userManager->addUser(newu);
+            if (code != 0) {
+                // Add the new user to the UserManager container. We rely on
+                // UserManager using a container that preserves element
+                // addresses (std::list) so pointers like Menu::currentUser do
+                // not become dangling after this insertion. See
+                // include/UserManager.h for rationale.
+                userManager->addUser(newu);
+            }
         } else if (choice == 3) {
             std::cout << "Ingrese nombre de usuario a eliminar: ";
             std::string n; std::getline(std::cin, n);
@@ -147,6 +154,9 @@ bool Menu::processOption(int option)
             // Count superadmins and admins separately to apply stricter rules
             int superAdminCount = 0;
             int adminCount = 0; // regular admin (not counting superadmins)
+            // Iterate the user list and compute counts. Because the internal
+            // container is a std::list the pointers/iterators used elsewhere
+            // in the program remain stable during iteration and insertions.
             for (const auto &u : userManager->allUsers()) {
                 if (u.isSuperAdminRole()) ++superAdminCount;
                 else if (u.isAdminRole()) ++adminCount;

@@ -64,7 +64,10 @@ int User::addNewUser(const User &actor)
 
     bool s = false;
     bool a = false;
-    // Only SuperAdmin actors can assign SuperAdmin or Admin roles when creating users
+    // Only SuperAdmin actors can assign SuperAdmin or Admin roles when creating users.
+    // If the actor is only an Admin, we do not prompt for these roles and
+    // explicitly inform the admin -- this prevents privilege escalation where
+    // an Admin could create another Admin or SuperAdmin.
     if (actor.isSuperAdmin) {
         s = askRole("SuperAdmin?");
         a = askRole("Admin?");
