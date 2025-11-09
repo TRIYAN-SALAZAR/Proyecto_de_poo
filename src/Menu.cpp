@@ -211,8 +211,17 @@ bool Menu::processOption(int option)
             std::cout << "Permisos insuficientes para gestionar usuarios.\n";
             return true;
         }
-        std::cout << "Gestion de usuarios " << std::endl << "1. Listar" << std::endl << "2=Agregar" << std::endl << "3=Eliminar" << std::endl;
-        int choice; if (!(std::cin >> choice)) { clearInput(); return true; } clearInput();
+        std::vector<std::string> umopts = {"1. Listar", "2. Agregar", "3. Eliminar"};
+        int choiceSel = selectFromList(umopts, "Gestion de usuarios", 0, true);
+        int choice = 0;
+        if (choiceSel == -2) {
+            std::cout << "Gestion de usuarios " << std::endl << "1. Listar" << std::endl << "2=Agregar" << std::endl << "3=Eliminar" << std::endl;
+            if (!(std::cin >> choice)) { clearInput(); return true; } clearInput();
+        } else if (choiceSel == -1) {
+            return true;
+        } else {
+            choice = choiceSel + 1;
+        }
         if (choice == 1) {
             // Print users in a table: ID | Usuario | Rol
             const int wId = 6, wName = 24, wRole = 16;
@@ -316,11 +325,24 @@ bool Menu::processOption(int option)
     if (option == 1)
     {
         clearScreen();
-        showProductTypeMenu();
+        // Interactive product-type selector with numeric fallback
         int t = 0;
-        if (!(std::cin >> t))
-            return true;
-        clearInput();
+        {
+            std::vector<std::string> opts = {"1. Electronico", "2. Libro", "3. Producto"};
+            int sel = selectFromList(opts, "Selecciona tipo de producto", 0, true);
+            if (sel == -2) {
+                // fallback to numeric
+                showProductTypeMenu();
+                if (!(std::cin >> t)) return true;
+                clearInput();
+            } else if (sel == -1) {
+                return true; // cancelled
+            } else {
+                // sel is 0-based index representing option 1..3
+                t = sel + 1;
+            }
+        }
+
         
         std::string name, description;
         float price = 0.0f;
@@ -403,19 +425,30 @@ bool Menu::processOption(int option)
     else if (option == 5)
     {
         clearScreen();
-        showProductTypeMenu();
-        int t = 0;
-        if (!(std::cin >> t))
-            return true;
-        clearInput();
-        if (t == 1)
-            gestor->showByType("Electronic");
-        else if (t == 2)
-            gestor->showByType("Book");
-        else if(t == 3)
-            gestor->showByType("Product");
-        else
-            std::cout << "Opcion no valida" << std::endl;
+        // Interactive selector for product type with fallback
+        {
+            std::vector<std::string> opts = {"1. Electronico", "2. Libro", "3. Producto"};
+            int sel = selectFromList(opts, "Mostrar productos por tipo", 0, true);
+            int t = 0;
+            if (sel == -2) {
+                showProductTypeMenu();
+                if (!(std::cin >> t)) return true;
+                clearInput();
+            } else if (sel == -1) {
+                return true;
+            } else {
+                t = sel + 1;
+            }
+
+            if (t == 1)
+                gestor->showByType("Electronic");
+            else if (t == 2)
+                gestor->showByType("Book");
+            else if (t == 3)
+                gestor->showByType("Product");
+            else
+                std::cout << "Opcion no valida" << std::endl;
+        }
 
     }
     else if (option == 6)
@@ -578,10 +611,26 @@ void Menu::operatorsMenu()
     {
         clearScreen();
         printUserBanner();
-        showOperatorsMenu();
+        // Interactive operators menu with fallback
+        std::vector<std::string> ops = {
+            "1. Comparar si los ID son iguales (==)",
+            "2. Comparar si los ID no son iguales (!=)",
+            "3. Determinar cual el menor precio (<)",
+            "4. Determinar cual tiene el mayor precio (>)",
+            "5. Sumar productos (+)",
+            "6. Volver"
+        };
+        int sel = selectFromList(ops, "Menu Operadores", 0, true);
         int op = 0;
-        if (!(std::cin >> op)) return;
-        clearInput();
+        if (sel == -2) {
+            showOperatorsMenu();
+            if (!(std::cin >> op)) return;
+            clearInput();
+        } else if (sel == -1) {
+            return;
+        } else {
+            op = sel + 1;
+        }
         if (op == 6) return;
 
         int id1 = 0, id2 = 0;
@@ -635,13 +684,20 @@ void Menu::salesMenu()
         clearScreen();
         printUserBanner();
         std::cout << "-- Modulo Ventas --\n";
-        std::cout << "1. Nueva venta\n";
-        std::cout << "2. Buscar venta\n";
-        std::cout << "3. Volver\n";
-        std::cout << "Elige una opcion: ";
+        std::vector<std::string> sopts = {"1. Nueva venta", "2. Buscar venta", "3. Volver"};
+        int sel = selectFromList(sopts, "Modulo Ventas", 0, true);
         int op = 0;
-        if (!(std::cin >> op)) return;
-        clearInput();
+        if (sel == -2) {
+            std::cout << "1. Nueva venta\n";
+            std::cout << "2. Buscar venta\n";
+            std::cout << "3. Volver\n";
+            if (!(std::cin >> op)) return;
+            clearInput();
+        } else if (sel == -1) {
+            return;
+        } else {
+            op = sel + 1;
+        }
         if (op == 3) return;
         if (op == 1) {
             // Create sale
@@ -731,8 +787,17 @@ void Menu::salesMenu()
                 }
             } else if (isAdmin || isSuper) {
                 // Admin: give options to view all sales or filter by user or by ID
-                std::cout << "Buscar ventas: 1=Todas las ventas, 2=Filtrar por codigo de usuario, 3=Buscar por ID de venta: ";
-                int choice; if (!(std::cin >> choice)) { clearInput(); std::cout << "Opcion invalida.\n"; continue; } clearInput();
+                std::vector<std::string> vopts = {"1. Todas las ventas", "2. Filtrar por codigo de usuario", "3. Buscar por ID de venta"};
+                int choiceSel = selectFromList(vopts, "Buscar ventas (Admin)", 0, true);
+                int choice;
+                if (choiceSel == -2) {
+                    std::cout << "Buscar ventas: 1=Todas las ventas, 2=Filtrar por codigo de usuario, 3=Buscar por ID de venta: ";
+                    if (!(std::cin >> choice)) { clearInput(); std::cout << "Opcion invalida.\n"; continue; } clearInput();
+                } else if (choiceSel == -1) {
+                    continue;
+                } else {
+                    choice = choiceSel + 1;
+                }
                 if (choice == 1) {
                     auto list = salesManager ? salesManager->allSales() : std::vector<Sale>();
                     if (list.empty()) { std::cout << "No hay ventas registradas.\n"; }
@@ -810,8 +875,17 @@ void Menu::salesMenu()
                 }
             } else {
                 // For other roles, fallback to previous behavior (allow searching by ID or user code)
-                std::cout << "Buscar por: 1=ID venta, 2=Codigo usuario: ";
-                int choice; if (!(std::cin >> choice)) { clearInput(); std::cout << "Opcion invalida.\n"; continue; } clearInput();
+                std::vector<std::string> vopts = {"1. Buscar por ID venta", "2. Buscar por codigo usuario"};
+                int choiceSel = selectFromList(vopts, "Buscar ventas", 0, true);
+                int choice;
+                if (choiceSel == -2) {
+                    std::cout << "Buscar por: 1=ID venta, 2=Codigo usuario: ";
+                    if (!(std::cin >> choice)) { clearInput(); std::cout << "Opcion invalida.\n"; continue; } clearInput();
+                } else if (choiceSel == -1) {
+                    continue;
+                } else {
+                    choice = choiceSel + 1;
+                }
                 if (choice == 1) {
                     std::cout << "Ingrese ID de venta: "; int sid; if (!(std::cin >> sid)) { clearInput(); std::cout << "ID invalido.\n"; continue; } clearInput();
                     Sale* found = salesManager ? salesManager->findById(sid) : nullptr;
