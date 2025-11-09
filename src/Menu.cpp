@@ -400,6 +400,8 @@ bool Menu::processOption(int option)
             std::cout << "Eliminado.\n";
         else
             std::cout << "No eliminado o no encontrado.\n";
+        // Allow user to see the result before the screen is cleared by run()
+        waitForEnter();
     }
     else if (option == 3)
     {
@@ -646,6 +648,7 @@ void Menu::operatorsMenu()
         if (!p1 || !p2)
         {
             std::cout << "Uno o ambos productos no encontrados.\n";
+            waitForEnter();
             continue;
         }
 
@@ -653,27 +656,32 @@ void Menu::operatorsMenu()
         {
             bool res = (*p1) == (*p2);
             std::cout << (res ? "Productos iguales\n" : "Productos distintos\n");
+            waitForEnter();
         }
         else if (op == 2)
         {
             bool res = (*p1) != (*p2);
             std::cout << (res ? "Productos distintos\n" : "Productos iguales\n");
+            waitForEnter();
         }
         else if (op == 3)
         {
             bool res = (*p1) < (*p2);
             std::cout << (res ? "El precio del primer producto es menor\n" : "El precio del segundo producto es menor\n");
+            waitForEnter();
         }
         else if (op == 4)
         {
             bool res = (*p1) > (*p2);
             std::cout << (res ? "El precio del primer producto es mayor\n" : "El precio del segundo producto es mayor\n");
+            waitForEnter();
         }
         else if (op == 5)
         {
             Product combined = (*p1) + (*p2);
             std::cout << "Resultado de la suma:\n";
             std::cout << combined << std::endl;
+            waitForEnter();
         }
     }
 }
