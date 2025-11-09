@@ -195,135 +195,7 @@ bool Menu::processOption(int option)
     if (option == 11) {
         if (!(isSuper || isAdmin || isSeller)) { std::cout << "Permisos insuficientes para esta accion.\n"; return true; }
     }
-    // Handle logout and user management options here to keep logic centralized
-    if (option == 8) {
-        // logout
-        currentUser = nullptr;
-        std::cout << "Cerrando sesion.\n";
-        waitForEnter();
-        return false; // signal run() to exit menu loop
-    }
-
-    if (option == 9) {
-        // Gestion de usuarios: list, add, delete
-        clearScreen();
-        printUserBanner();
-        if (!(currentUser->isAdminRole() || currentUser->isSuperAdminRole())) {
-            std::cout << "Permisos insuficientes para gestionar usuarios.\n";
-            return true;
-        }
-        std::vector<std::string> umopts = {"1. Listar", "2. Agregar", "3. Eliminar"};
-        int choiceSel = selectFromList(umopts, "Gestion de usuarios", 0, true);
-        int choice = 0;
-        if (choiceSel == -2) {
-            std::cout << "Gestion de usuarios " << std::endl << "1. Listar" << std::endl << "2=Agregar" << std::endl << "3=Eliminar" << std::endl;
-            if (!(std::cin >> choice)) { clearInput(); return true; } clearInput();
-        } else if (choiceSel == -1) {
-            return true;
-        } else {
-            choice = choiceSel + 1;
-        }
-        if (choice == 1) {
-            // Print users in a table: ID | Usuario | Rol
-            using namespace TableFormat;
-            const int wId = UserWidths::Id, wName = UserWidths::Name, wRole = UserWidths::Role;
-            std::cout << std::left << std::setw(wId) << "ID"
-                      << std::setw(wName) << "Usuario"
-                      << std::setw(wRole) << "Rol" << "\n";
-            TableFormat::printSeparator(std::cout, {wId, wName, wRole});
-            for (const auto &usr : userManager->allUsers()) {
-                std::string role = "None";
-                if (usr.isSuperAdminRole()) role = "SuperAdmin";
-                else if (usr.isAdminRole()) role = "Admin";
-                else if (usr.isSellerRole()) role = "Seller";
-                else if (usr.isWarehouseWorkerRole()) role = "Warehouse";
-
-                std::cout << std::left << std::setw(wId) << usr.getCode()
-                          << std::setw(wName) << usr.getName()
-                          << std::setw(wRole) << role << "\n";
-            }
-        } else if (choice == 2) {
-            User newu;
-            int code = newu.addNewUser(*currentUser);
-            if (code != 0) {
-                // Add the new user to the UserManager container. We rely on
-                // UserManager using a container that preserves element
-                // addresses (std::list) so pointers like Menu::currentUser do
-                // not become dangling after this insertion. See
-                // include/UserManager.h for rationale.
-                userManager->addUser(newu);
-            }
-        } else if (choice == 3) {
-            std::cout << "Ingrese nombre de usuario a eliminar: ";
-            std::string n; std::getline(std::cin, n);
-            User* target = userManager->findByName(n);
-            if (!target) { std::cout << "Usuario no encontrado.\n"; return true; }
-            // Prevent deleting currently logged-in user
-            if (target->getName() == currentUser->getName()) { std::cout << "No puede eliminar al usuario con sesion iniciada.\n"; return true; }
-
-            // Count superadmins and admins separately to apply stricter rules
-            int superAdminCount = 0;
-            int adminCount = 0; // regular admin (not counting superadmins)
-            // Iterate the user list and compute counts. Because the internal
-            // container is a std::list the pointers/iterators used elsewhere
-            // in the program remain stable during iteration and insertions.
-            for (const auto &u : userManager->allUsers()) {
-                if (u.isSuperAdminRole()) ++superAdminCount;
-                else if (u.isAdminRole()) ++adminCount;
-            }
-
-            // If target is SuperAdmin: only a SuperAdmin can delete, and can't delete the last SuperAdmin
-            if (target->isSuperAdminRole()) {
-                if (!currentUser->isSuperAdminRole()) {
-                    std::cout << "Operacion denegada: solo un SuperAdmin puede eliminar a otro SuperAdmin.\n";
-                    return true;
-                }
-                if (superAdminCount <= 1) {
-                    std::cout << "Operacion denegada: no se puede eliminar al ultimo SuperAdmin.\n";
-                    return true;
-                }
-            }
-
-            // If target is an Admin (but not SuperAdmin): only SuperAdmin can delete Admins and avoid deleting last admin
-            if (target->isAdminRole() && !target->isSuperAdminRole()) {
-                if (!currentUser->isSuperAdminRole()) {
-                    std::cout << "Operacion denegada: solo un SuperAdmin puede eliminar a un Admin.\n";
-                    return true;
-                }
-                if (adminCount <= 1) {
-                    std::cout << "Operacion denegada: no se puede eliminar al ultimo usuario con rol Admin.\n";
-                    return true;
-                }
-            }
-
-            std::cout << "Confirma eliminar usuario '" << target->getName() << "'? (y/n): ";
-            char c = 'n';
-            if (!(std::cin >> c)) { std::cin.clear(); clearInput(); std::cout << "Operacion cancelada.\n"; return true; }
-            clearInput();
-            if (c == 'y' || c == 'Y') {
-                bool removed = userManager->removeByName(target->getName());
-                if (removed) std::cout << "Usuario eliminado.\n";
-                else std::cout << "Error eliminando usuario.\n";
-            } else {
-                std::cout << "Operacion cancelada.\n";
-            }
-        }
-        return true;
-    }
-
-    if (option == 10) {
-        if (!currentUser->isSuperAdminRole()) { std::cout << "Permisos insuficientes.\n"; return true; }
-        clearScreen();
-        printUserBanner();
-        std::cout << "Ingrese nombre de usuario para asignar rol Admin: ";
-        std::string n; std::getline(std::cin, n);
-        User* target = userManager->findByName(n);
-        if (!target) { std::cout << "Usuario no encontrado.\n"; return true; }
-        target->setAdmin(true);
-        std::cout << "Rol Admin asignado a " << target->getName() << "\n";
-        return true;
-    }
-
+    // Handle options in numeric order 1..11 for readability
     if (option == 1)
     {
         clearScreen();
@@ -345,7 +217,6 @@ bool Menu::processOption(int option)
             }
         }
 
-        
         std::string name, description;
         float price = 0.0f;
         int stock = 0;
@@ -374,7 +245,6 @@ bool Menu::processOption(int option)
         }
         else if (t == 2)
         {
-            
             Book *b = new Book(0, name, price, description, stock);
             std::cin >> *b;
             gestor->addProduct(b);
@@ -460,15 +330,128 @@ bool Menu::processOption(int option)
         // operatorsMenu will clear per-iteration; call it directly
         operatorsMenu();
     }
-    else if (option == 11)
-    {
-        // salesMenu already clears each loop iteration
-        salesMenu();
-    }
     else if (option == 7)
     {
         clearScreen();
         modifyProduct();
+    }
+    else if (option == 8) {
+        // logout
+        currentUser = nullptr;
+        std::cout << "Cerrando sesion.\n";
+        waitForEnter();
+        return false; // signal run() to exit menu loop
+    }
+    else if (option == 9) {
+        // Gestion de usuarios: list, add, delete
+        clearScreen();
+        printUserBanner();
+        if (!(currentUser->isAdminRole() || currentUser->isSuperAdminRole())) {
+            std::cout << "Permisos insuficientes para gestionar usuarios.\n";
+            return true;
+        }
+        std::vector<std::string> umopts = {"1. Listar", "2. Agregar", "3. Eliminar"};
+        int choiceSel = selectFromList(umopts, "Gestion de usuarios", 0, true);
+        int choice = 0;
+        if (choiceSel == -2) {
+            std::cout << "Gestion de usuarios " << std::endl << "1. Listar" << std::endl << "2=Agregar" << std::endl << "3=Eliminar" << std::endl;
+            if (!(std::cin >> choice)) { clearInput(); return true; } clearInput();
+        } else if (choiceSel == -1) {
+            return true;
+        } else {
+            choice = choiceSel + 1;
+        }
+        if (choice == 1) {
+            // Print users in a table: ID | Usuario | Rol
+            using namespace TableFormat;
+            const int wId = UserWidths::Id, wName = UserWidths::Name, wRole = UserWidths::Role;
+            std::cout << std::left << std::setw(wId) << "ID"
+                      << std::setw(wName) << "Usuario"
+                      << std::setw(wRole) << "Rol" << "\n";
+            TableFormat::printSeparator(std::cout, {wId, wName, wRole});
+            for (const auto &usr : userManager->allUsers()) {
+                std::string role = "None";
+                if (usr.isSuperAdminRole()) role = "SuperAdmin";
+                else if (usr.isAdminRole()) role = "Admin";
+                else if (usr.isSellerRole()) role = "Seller";
+                else if (usr.isWarehouseWorkerRole()) role = "Warehouse";
+
+                std::cout << std::left << std::setw(wId) << usr.getCode()
+                          << std::setw(wName) << usr.getName()
+                          << std::setw(wRole) << role << "\n";
+            }
+        } else if (choice == 2) {
+            User newu;
+            int code = newu.addNewUser(*currentUser);
+            if (code != 0) {
+                userManager->addUser(newu);
+            }
+        } else if (choice == 3) {
+            std::cout << "Ingrese nombre de usuario a eliminar: ";
+            std::string n; std::getline(std::cin, n);
+            User* target = userManager->findByName(n);
+            if (!target) { std::cout << "Usuario no encontrado.\n"; return true; }
+            if (target->getName() == currentUser->getName()) { std::cout << "No puede eliminar al usuario con sesion iniciada.\n"; return true; }
+
+            int superAdminCount = 0;
+            int adminCount = 0;
+            for (const auto &u : userManager->allUsers()) {
+                if (u.isSuperAdminRole()) ++superAdminCount;
+                else if (u.isAdminRole()) ++adminCount;
+            }
+
+            if (target->isSuperAdminRole()) {
+                if (!currentUser->isSuperAdminRole()) {
+                    std::cout << "Operacion denegada: solo un SuperAdmin puede eliminar a otro SuperAdmin.\n";
+                    return true;
+                }
+                if (superAdminCount <= 1) {
+                    std::cout << "Operacion denegada: no se puede eliminar al ultimo SuperAdmin.\n";
+                    return true;
+                }
+            }
+
+            if (target->isAdminRole() && !target->isSuperAdminRole()) {
+                if (!currentUser->isSuperAdminRole()) {
+                    std::cout << "Operacion denegada: solo un SuperAdmin puede eliminar a un Admin.\n";
+                    return true;
+                }
+                if (adminCount <= 1) {
+                    std::cout << "Operacion denegada: no se puede eliminar al ultimo usuario con rol Admin.\n";
+                    return true;
+                }
+            }
+
+            std::cout << "Confirma eliminar usuario '" << target->getName() << "'? (y/n): ";
+            char c = 'n';
+            if (!(std::cin >> c)) { std::cin.clear(); clearInput(); std::cout << "Operacion cancelada.\n"; return true; }
+            clearInput();
+            if (c == 'y' || c == 'Y') {
+                bool removed = userManager->removeByName(target->getName());
+                if (removed) std::cout << "Usuario eliminado.\n";
+                else std::cout << "Error eliminando usuario.\n";
+            } else {
+                std::cout << "Operacion cancelada.\n";
+            }
+        }
+        return true;
+    }
+    else if (option == 10) {
+        if (!currentUser->isSuperAdminRole()) { std::cout << "Permisos insuficientes.\n"; return true; }
+        clearScreen();
+        printUserBanner();
+        std::cout << "Ingrese nombre de usuario para asignar rol Admin: ";
+        std::string n; std::getline(std::cin, n);
+        User* target = userManager->findByName(n);
+        if (!target) { std::cout << "Usuario no encontrado.\n"; return true; }
+        target->setAdmin(true);
+        std::cout << "Rol Admin asignado a " << target->getName() << "\n";
+        return true;
+    }
+    else if (option == 11)
+    {
+        // salesMenu already clears each loop iteration
+        salesMenu();
     }
 
     std::cout << std::endl;
