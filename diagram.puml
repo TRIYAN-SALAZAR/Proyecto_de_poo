@@ -1,0 +1,186 @@
+@startuml
+' Auto-generated PlantUML from headers in include/
+
+class Product {
+  - int id
+  - int stock
+  - float price
+  - std::string name
+  - std::string description
+  + Product()
+  + Product(int id, int stock, float price, const std::string& name, const std::string& description)
+  + int getId() const
+  + void setId(int id)
+  + std::string getName() const
+  + void setName(const std::string& name)
+  + float getPrice() const
+  + void setPrice(float price)
+  + std::string getDescription() const
+  + void setDescription(const std::string& description)
+  + int getStock() const
+  + void setStock(int stock)
+  + void showInfo() const
+  + float calculateFinalPrice() const
+  + void printRow(std::ostream& out) const
+  + virtual ~Product()
+  + bool operator==(const Product& p) const
+  + bool operator!=(const Product& p) const
+  + bool operator<(const Product& p) const
+  + bool operator>(const Product& p) const
+  + Product& operator=(const Product& p)
+  + Product operator+(const Product& p) const
+  + friend std::ostream& operator<<(std::ostream& out, const Product& p)
+}
+
+class Electronic {
+  - std::string brand
+  - std::string model
+  - int warrantyMonths
+  - std::string specifications
+  + Electronic()
+  + Electronic(int id, const std::string& name, float price, const std::string& description, int stock)
+  + Electronic(int id, const std::string& name, float price, const std::string& description, int stock,
+               const std::string& brand, const std::string& model, int warrantyMonths, const std::string& specifications)
+  + std::string getBrand() const
+  + void setBrand(const std::string& brand)
+  + std::string getModel() const
+  + void setModel(const std::string& model)
+  + int getWarrantyMonths() const
+  + void setWarrantyMonths(int warrantyMonths)
+  + std::string getSpecifications() const
+  + void setSpecifications(const std::string& specifications)
+  + void showInfo() const
+  + float calculateFinalPrice() const
+  + void printRow(std::ostream& out) const
+  + friend std::istream& operator>>(std::istream& input, Electronic& electronic)
+}
+
+class Book {
+  - std::string author
+  - std::string publisher
+  - std::string isbn
+  - int pages
+  - std::string genre
+  + Book()
+  + Book(int id, const std::string& name, float price, const std::string& description, int stock,
+         const std::string& author, const std::string& publisher, const std::string& isbn, int pages, const std::string& genre)
+  + Book(int id, const std::string& name, float price, const std::string& description, int stock)
+  + std::string getAuthor() const
+  + void setAuthor(const std::string& author)
+  + std::string getPublisher() const
+  + void setPublisher(const std::string& publisher)
+  + std::string getIsbn() const
+  + void setIsbn(const std::string& isbn)
+  + int getPages() const
+  + void setPages(int pages)
+  + std::string getGenre() const
+  + void setGenre(const std::string& genre)
+  + void showInfo() const
+  + float calculateFinalPrice() const
+  + void printRow(std::ostream& out) const
+  + friend std::istream& operator>>(std::istream &input, Book& book)
+}
+
+class Gestor {
+  - std::vector<Product*> list
+  - int counterId
+  + Gestor()
+  + ~Gestor()
+  + void addProduct(Product* nuevo)
+  + Product* findProduct(int id) const
+  + bool removeProduct(int id)
+  + void showAll() const
+  + void showByType(const std::string &tipo) const
+  + int generateId()
+}
+
+class User {
+  - bool isSuperAdmin
+  - bool isAdmin
+  - bool isSeller
+  - bool isWarehouseWorker
+  - std::string name
+  - std::string password
+  - int code
+  + User()
+  + virtual ~User()
+  + void getRol()
+  + int addNewUser(const User &actor)
+  + int deleteUser(const User &actor)
+  + const std::string& getName() const
+  + int getCode() const
+  + bool isAdminRole() const
+  + bool isSuperAdminRole() const
+  + bool isSellerRole() const
+  + bool isWarehouseWorkerRole() const
+  + bool checkPassword(const std::string &pw) const
+  + void setAdmin(bool v)
+  + void setSuperAdmin(bool v)
+  + void setSeller(bool v)
+  + void setWarehouseWorker(bool v)
+  + void setPassword(const std::string &pw)
+  + void setName(const std::string &n)
+}
+
+class UserManager {
+  - std::list<User> users
+  + UserManager()
+  + ~UserManager()
+  + void addUser(const User &u)
+  + User* findByName(const std::string &name)
+  + User* authenticate(const std::string &name, const std::string &password)
+  + std::list<User>& allUsers()
+  + bool removeByName(const std::string &name)
+}
+
+class SalesManager {
+  - std::vector<Sale> sales
+  - int counter
+  + SalesManager()
+  + ~SalesManager()
+  + int addSale(const Sale &s)
+  + Sale* findById(int saleId)
+  + std::vector<Sale> findByUserCode(int userCode) const
+  + const std::vector<Sale>& allSales() const
+}
+
+class Sale {
+  + int saleId
+  + int userCode
+  + std::string userName
+  + std::string productType
+  + std::string productName
+  + int units
+  + float totalPrice
+}
+
+class Menu {
+  - Gestor* gestor
+  - UserManager* userManager
+  - User* currentUser
+  - SalesManager* salesManager
+  - void printUserBanner() const
+  - int selectFromList(const std::vector<std::string> &items, const std::string &title = "", int startIndex = 0, bool allowEsc = true)
+  - int interactiveSelectMainMenu()
+  + Menu(Gestor* gestor, UserManager* userManager, SalesManager* salesManager)
+  + void showMainMenu()
+  + void showProductTypeMenu() const
+  + void showOperatorsMenu() const
+  + bool processOption(int option)
+  + void run()
+  + void operatorsMenu()
+  + void modifyProduct()
+  + void salesMenu()
+}
+
+' Relationships
+Product <|-- Electronic
+Product <|-- Book
+Gestor --> Product : manages
+Menu --> Gestor
+Menu --> UserManager
+Menu --> SalesManager
+UserManager --> User : stores
+SalesManager --> Sale : stores
+
+@enduml
